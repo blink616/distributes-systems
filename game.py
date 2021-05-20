@@ -42,14 +42,14 @@ class Game(object):
                     self.vertical_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
         self.enemies = pygame.sprite.Group()
-        self.enemies.add(Slime(288,96,0,2))
-        self.enemies.add(Slime(288,320,0,-2))
-        self.enemies.add(Slime(544,128,0,2))
-        self.enemies.add(Slime(32,224,0,2))
-        self.enemies.add(Slime(160,64,2,0))
-        self.enemies.add(Slime(448,64,-2,0))
-        self.enemies.add(Slime(640,448,2,0))
-        self.enemies.add(Slime(448,320,2,0))
+        self.enemies.add(Slime(290,96,0,2,"enemy1.png","enemy1Walk.png"))
+        self.enemies.add(Slime(290,320,0,-2,"enemy2.png","enemy2Walk.png"))
+        self.enemies.add(Slime(546,128,0,2,"enemy3.png","enemy3Walk.png"))
+        self.enemies.add(Slime(33,224,0,2,"enemy4.png","enemy4Walk.png"))
+        self.enemies.add(Slime(162,64,2,0,"enemy1.png","enemy1Walk.png"))
+        self.enemies.add(Slime(450,64,-2,0,"enemy2.png","enemy2Walk.png"))
+        self.enemies.add(Slime(642,448,2,0,"enemy3.png","enemy3Walk.png"))
+        self.enemies.add(Slime(450,320,2,0,"enemy4.png","enemy4Walk.png"))
         # Add the dots inside the game
         for i, row in enumerate(enviroment()):
             for j, item in enumerate(row):
