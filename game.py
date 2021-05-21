@@ -18,6 +18,7 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 BLUE = (0,0,255)
 RED = (255,0,0)
+maptype = 'simple3'
 
 class Game(object):
     def __init__(self):
@@ -38,7 +39,7 @@ class Game(object):
         # Create a group for the dots on the screen
         self.dots_group = pygame.sprite.Group()
         # Set the enviroment:
-        for i,row in enumerate(enviroment()):
+        for i,row in enumerate(enviroment(maptype)):
             for j,item in enumerate(row):
                 if item == 1:
                     self.horizontal_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
@@ -46,16 +47,16 @@ class Game(object):
                     self.vertical_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
         self.enemies = pygame.sprite.Group()
-        self.enemies.add(Slime(290,96,0,2,"graphic/enemy1.png","graphic/enemy1Walk.png"))
-        self.enemies.add(Slime(290,320,0,-2,"graphic/enemy2.png","graphic/enemy2Walk.png"))
-        self.enemies.add(Slime(546,128,0,2,"graphic/enemy3.png","graphic/enemy3Walk.png"))
-        self.enemies.add(Slime(33,224,0,2,"graphic/enemy4.png","graphic/enemy4Walk.png"))
-        self.enemies.add(Slime(162,64,2,0,"graphic/enemy1.png","graphic/enemy1Walk.png"))
-        self.enemies.add(Slime(450,64,-2,0,"graphic/enemy2.png","graphic/enemy2Walk.png"))
-        self.enemies.add(Slime(642,448,2,0,"graphic/enemy3.png","graphic/enemy3Walk.png"))
-        self.enemies.add(Slime(450,320,2,0,"graphic/enemy4.png","graphic/enemy4Walk.png"))
+        self.enemies.add(Slime(290,96,0,2,"graphic/enemy1.png","graphic/enemy1Walk.png",maptype))
+        self.enemies.add(Slime(290,320,0,-2,"graphic/enemy2.png","graphic/enemy2Walk.png",maptype))
+        self.enemies.add(Slime(546,128,0,2,"graphic/enemy3.png","graphic/enemy3Walk.png",maptype))
+        self.enemies.add(Slime(33,224,0,2,"graphic/enemy4.png","graphic/enemy4Walk.png",maptype))
+        self.enemies.add(Slime(162,64,2,0,"graphic/enemy1.png","graphic/enemy1Walk.png",maptype))
+        self.enemies.add(Slime(450,64,-2,0,"graphic/enemy2.png","graphic/enemy2Walk.png",maptype))
+        self.enemies.add(Slime(642,448,2,0,"graphic/enemy3.png","graphic/enemy3Walk.png",maptype))
+        self.enemies.add(Slime(450,320,2,0,"graphic/enemy4.png","graphic/enemy4Walk.png",maptype))
         # Add the dots inside the game
-        for i, row in enumerate(enviroment()):
+        for i, row in enumerate(enviroment(maptype)):
             for j, item in enumerate(row):
                 if item != 0:
                     self.dots_group.add(Flag(j*32+12,i*32+12,WHITE,8,8))
@@ -151,7 +152,7 @@ class Game(object):
             # --- Draw the game here ---
             self.horizontal_blocks.draw(screen)
             self.vertical_blocks.draw(screen)
-            draw_enviroment(screen)
+            draw_enviroment(screen, maptype)
             self.dots_group.draw(screen)
             self.enemies.draw(screen)
             screen.blit(self.player.image,self.player.rect)

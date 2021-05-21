@@ -16,8 +16,9 @@ RED = (255,0,0)
 class Slime(pygame.sprite.Sprite):
     change_x = 0
     change_y = 0
-    
-    def __init__(self,x,y,xx,yy, filename, walkname):
+    maptype = ''
+    def __init__(self,x,y,xx,yy, filename, walkname, maptype):
+        self.maptype= maptype
         self.change_x = xx
         self.change_y = yy
         # Call the parent class (Sprite) constructor
@@ -70,7 +71,7 @@ class Slime(pygame.sprite.Sprite):
         elif self.rect.top > SCREEN_HEIGHT:
             self.rect.bottom = 0
 
-        if self.rect.topleft in self.get_intersection_position():
+        if self.rect.topleft in self.get_intersection_position(self.maptype):
             direction = random.choice(("left","right","up","down"))
             
             if direction == "left" and self.change_x == 0:
@@ -103,9 +104,9 @@ class Slime(pygame.sprite.Sprite):
             self.image = self.move_up_animation.get_current_image()
     
 
-    def get_intersection_position(self):
+    def get_intersection_position(self,maptype):
         items = []
-        for i,row in enumerate(enviroment()):
+        for i,row in enumerate(enviroment(maptype)):
             for j,item in enumerate(row):
                 if item == 3:
                     items.append((j*32,i*32))
