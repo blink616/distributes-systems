@@ -13,16 +13,6 @@ BLUE = (0,0,255)
 GREEN = (0,255,0)
 RED = (255,0,0)
 
-class Block(pygame.sprite.Sprite):
-    def __init__(self,x,y,color,width,height):
-        # Call the parent class (Sprite) constructor
-        pygame.sprite.Sprite.__init__(self)
-        # Set the background color and set it to be transparent
-        self.image = pygame.Surface([width,height])
-        self.image.fill(color)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x,y)
-      
 class Slime(pygame.sprite.Sprite):
     change_x = 0
     change_y = 0
