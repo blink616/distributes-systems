@@ -6,6 +6,8 @@ from player import Player
 from environment import *
 from flag import *
 from enemies import *
+from flag import *
+from environment import *
 import tkinter
 from tkinter import messagebox
 SCREEN_WIDTH = 800

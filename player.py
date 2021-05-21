@@ -110,8 +110,3 @@ class Player(pygame.sprite.Sprite):
         if self.change_y != 0:
             self.image = pygame.transform.rotate(self.player_image,270)
         self.change_y = 0
-
-
-            
-    
-        
