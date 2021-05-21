@@ -50,10 +50,6 @@ class Enemy(pygame.sprite.Sprite):
             self.move_up_animation.update(10)
             self.image = self.move_up_animation.get_current_image()
 
-
-        # Load explosion image
-        img = pygame.image.load("graphic/explosion.png").convert()
-        self.explosion_animation = Animation(img,30,30)
         # Save the player image
         self.player_image = pygame.image.load(filename).convert()
         self.player_image.set_colorkey(BLACK)

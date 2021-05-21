@@ -18,7 +18,12 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 BLUE = (0,0,255)
 RED = (255,0,0)
+
+#key variables
 maptype = 'simple3'
+playerCharacter = "graphic/character5.png"
+playerWalk = "graphic/character5Walk.png"
+playerExplosion = "graphic/explosion0.png"
 
 class Game(object):
     def __init__(self):
@@ -32,7 +37,7 @@ class Game(object):
         # Create the menu of the game
         self.menu = Menu(("Start","About","Exit"),font_color = WHITE,font_size=60)
         # Create the player
-        self.player = Player(32,128,"graphic/player.png")
+        self.player = Player(32,128,playerCharacter, playerWalk, playerExplosion)
         # Create the blocks that will set the paths where the player can go
         self.horizontal_blocks = pygame.sprite.Group()
         self.vertical_blocks = pygame.sprite.Group()
@@ -47,14 +52,14 @@ class Game(object):
                     self.vertical_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
         self.enemies = pygame.sprite.Group()
-        self.enemies.add(Enemy(290,96,0,2,"graphic/enemy1.png","graphic/enemy1Walk.png",maptype))
-        self.enemies.add(Enemy(290,320,0,-2,"graphic/enemy2.png","graphic/enemy2Walk.png",maptype))
-        self.enemies.add(Enemy(546,128,0,2,"graphic/enemy3.png","graphic/enemy3Walk.png",maptype))
-        self.enemies.add(Enemy(33,224,0,2,"graphic/enemy4.png","graphic/enemy4Walk.png",maptype))
-        self.enemies.add(Enemy(162,64,2,0,"graphic/enemy1.png","graphic/enemy1Walk.png",maptype))
-        self.enemies.add(Enemy(450,64,-2,0,"graphic/enemy2.png","graphic/enemy2Walk.png",maptype))
-        self.enemies.add(Enemy(642,448,2,0,"graphic/enemy3.png","graphic/enemy3Walk.png",maptype))
-        self.enemies.add(Enemy(450,320,2,0,"graphic/enemy4.png","graphic/enemy4Walk.png",maptype))
+        self.enemies.add(Enemy(290,96,0,2,"graphic/character1.png","graphic/character1Walk.png",maptype))
+        self.enemies.add(Enemy(290,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",maptype))
+        self.enemies.add(Enemy(546,128,0,2,"graphic/character3.png","graphic/character3Walk.png",maptype))
+        self.enemies.add(Enemy(33,224,0,2,"graphic/character4.png","graphic/character4Walk.png",maptype))
+        self.enemies.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",maptype))
+        self.enemies.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",maptype))
+        self.enemies.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",maptype))
+        self.enemies.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",maptype))
         # Add the dots inside the game
         for i, row in enumerate(enviroment(maptype)):
             for j, item in enumerate(row):
