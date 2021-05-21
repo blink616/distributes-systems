@@ -13,7 +13,7 @@ BLUE = (0,0,255)
 GREEN = (0,255,0)
 RED = (255,0,0)
 
-class Slime(pygame.sprite.Sprite):
+class Enemy(pygame.sprite.Sprite):
     change_x = 0
     change_y = 0
     maptype = ''
