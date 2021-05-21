@@ -3,6 +3,8 @@
 
 import pygame
 from player import Player
+from environment import *
+from flag import *
 from enemies import *
 import tkinter
 from tkinter import messagebox
@@ -27,7 +29,7 @@ class Game(object):
         # Create the menu of the game
         self.menu = Menu(("Start","About","Exit"),font_color = WHITE,font_size=60)
         # Create the player
-        self.player = Player(32,128,"player.png")
+        self.player = Player(32,128,"graphic/player.png")
         # Create the blocks that will set the paths where the player can go
         self.horizontal_blocks = pygame.sprite.Group()
         self.vertical_blocks = pygame.sprite.Group()
@@ -42,23 +44,23 @@ class Game(object):
                     self.vertical_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
         self.enemies = pygame.sprite.Group()
-        self.enemies.add(Slime(290,96,0,2,"enemy1.png","enemy1Walk.png"))
-        self.enemies.add(Slime(290,320,0,-2,"enemy2.png","enemy2Walk.png"))
-        self.enemies.add(Slime(546,128,0,2,"enemy3.png","enemy3Walk.png"))
-        self.enemies.add(Slime(33,224,0,2,"enemy4.png","enemy4Walk.png"))
-        self.enemies.add(Slime(162,64,2,0,"enemy1.png","enemy1Walk.png"))
-        self.enemies.add(Slime(450,64,-2,0,"enemy2.png","enemy2Walk.png"))
-        self.enemies.add(Slime(642,448,2,0,"enemy3.png","enemy3Walk.png"))
-        self.enemies.add(Slime(450,320,2,0,"enemy4.png","enemy4Walk.png"))
+        self.enemies.add(Slime(290,96,0,2,"graphic/enemy1.png","graphic/enemy1Walk.png"))
+        self.enemies.add(Slime(290,320,0,-2,"graphic/enemy2.png","graphic/enemy2Walk.png"))
+        self.enemies.add(Slime(546,128,0,2,"graphic/enemy3.png","graphic/enemy3Walk.png"))
+        self.enemies.add(Slime(33,224,0,2,"graphic/enemy4.png","graphic/enemy4Walk.png"))
+        self.enemies.add(Slime(162,64,2,0,"graphic/enemy1.png","graphic/enemy1Walk.png"))
+        self.enemies.add(Slime(450,64,-2,0,"graphic/enemy2.png","graphic/enemy2Walk.png"))
+        self.enemies.add(Slime(642,448,2,0,"graphic/enemy3.png","graphic/enemy3Walk.png"))
+        self.enemies.add(Slime(450,320,2,0,"graphic/enemy4.png","graphic/enemy4Walk.png"))
         # Add the dots inside the game
         for i, row in enumerate(enviroment()):
             for j, item in enumerate(row):
                 if item != 0:
-                    self.dots_group.add(Ellipse(j*32+12,i*32+12,WHITE,8,8))
+                    self.dots_group.add(Flag(j*32+12,i*32+12,WHITE,8,8))
 
         # Load the sound effects
-        self.pacman_sound = pygame.mixer.Sound("pacman_sound.ogg")
-        self.game_over_sound = pygame.mixer.Sound("game_over_sound.ogg")
+        self.pacman_sound = pygame.mixer.Sound("sound/pacman_sound.ogg")
+        self.game_over_sound = pygame.mixer.Sound("sound/game_over_sound.ogg")
 
 
     def process_events(self):

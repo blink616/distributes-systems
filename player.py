@@ -1,4 +1,5 @@
 import pygame
+from spriteAnimation import Animation
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 576
@@ -20,14 +21,14 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (x,y)
         # Load image which will be for the animation
-        img = pygame.image.load("walk.png").convert()
+        img = pygame.image.load("graphic/walk.png").convert()
         # Create the animations objects
         self.move_right_animation = Animation(img,32,32)
         self.move_left_animation = Animation(pygame.transform.flip(img,True,False),32,32)
         self.move_up_animation = Animation(pygame.transform.rotate(img,90),32,32)
         self.move_down_animation = Animation(pygame.transform.rotate(img,270),32,32)
         # Load explosion image
-        img = pygame.image.load("explosion.png").convert()
+        img = pygame.image.load("graphic/explosion.png").convert()
         self.explosion_animation = Animation(img,30,30)
         # Save the player image
         self.player_image = pygame.image.load(filename).convert()
@@ -110,57 +111,6 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(self.player_image,270)
         self.change_y = 0
 
-
-
-class Animation(object):
-    def __init__(self,img,width,height):
-        # Load the sprite sheet
-        self.sprite_sheet = img
-        # Create a list to store the images
-        self.image_list = []
-        self.load_images(width,height)
-        # Create a variable which will hold the current image of the list
-        self.index = 0
-        # Create a variable that will hold the time
-        self.clock = 1
-        
-    def load_images(self,width,height):
-        # Go through every single image in the sprite sheet
-        for y in range(0,self.sprite_sheet.get_height(),height):
-            for x in range(0,self.sprite_sheet.get_width(),width): 
-                # load images into a list
-                img = self.get_image(x,y,width,height)
-                self.image_list.append(img)
-
-    def get_image(self,x,y,width,height):
-        # Create a new blank image
-        image = pygame.Surface([width,height]).convert()
-        # Copy the sprite from the large sheet onto the smaller
-        image.blit(self.sprite_sheet,(0,0),(x,y,width,height))
-        # Assuming black works as the transparent color
-        image.set_colorkey((0,0,0))
-        # Return the image
-        return image
-
-    def get_current_image(self):
-        return self.image_list[self.index]
-
-    def get_length(self):
-        return len(self.image_list)
-
-    def update(self,fps=30):
-        step = 30 // fps
-        l = range(1,30,step)
-        if self.clock == 30:
-            self.clock = 1
-        else:
-            self.clock += 1
-
-        if self.clock in l:
-            # Increase index
-            self.index += 1
-            if self.index == len(self.image_list):
-                self.index = 0
 
             
     
