@@ -55,7 +55,7 @@ class Enemy(pygame.sprite.Sprite):
         self.player_image.set_colorkey(BLACK)
  
 
-    def update(self,horizontal_blocks,vertical_blocks):
+    def update(self):
         self.rect.x += self.change_x
         self.rect.y += self.change_y
         if self.rect.right < 0:
@@ -67,23 +67,56 @@ class Enemy(pygame.sprite.Sprite):
         elif self.rect.top > SCREEN_HEIGHT:
             self.rect.bottom = 0
 
-        if self.rect.topleft in self.get_intersection_position(self.maptype):
-            direction = random.choice(("left","right","up","down"))
-            
-            if direction == "left" and self.change_x == 0:
+        items = self.get_intersection_position(self.maptype)
+        direction = ""
+        if self.rect.topleft in items[0]:
+            direction = random.choice(("left","up","down","right"))
+        elif self.rect.topleft in items[1]:
+            direction = random.choice(("left","right","down"))
+        elif self.rect.topleft in items[2]:
+            direction = random.choice(("left","up","right"))
+        elif self.rect.topleft in items[3]:
+            direction = random.choice(("down","right","up"))
+        elif self.rect.topleft in items[4]:
+            direction = random.choice(("down","left","up"))
+        elif self.rect.topleft in items[5]:
+            direction = random.choice(("down","right"))
+        elif self.rect.topleft in items[6]:
+            direction = random.choice(("down","left"))
+        elif self.rect.topleft in items[7]:
+            direction = random.choice(("up","right"))
+        elif self.rect.topleft in items[8]:
+            direction = random.choice(("up","left"))
+        
+        if direction == "left":
+            if self.change_x == 0:
                 self.change_x = -2
                 self.change_y = 0
-
-            elif direction == "right" and self.change_x == 0:
+            else:
+                self.change_x = 0
+                self.change_y = 0
+        elif direction == "right":
+            if self.change_x == 0:
                 self.change_x = 2
                 self.change_y = 0
-            elif direction == "up" and self.change_y == 0:
+            else:
+                self.change_x = 0
+                self.change_y = 0
+        elif direction == "up":
+            if self.change_y == 0:
                 self.change_x = 0
                 self.change_y = -2
-            elif direction == "down" and self.change_y == 0:
+            else:
+                self.change_x = 0
+                self.change_y = 0
+        elif direction == "down":
+            if self.change_y == 0:
                 self.change_x = 0
                 self.change_y = 2
-            
+            else:
+                self.change_x = 0
+                self.change_y = 0
+
         # This will cause the animation to start   
         if self.change_x > 0:
             self.move_right_animation.update(10)
@@ -100,14 +133,38 @@ class Enemy(pygame.sprite.Sprite):
             self.image = self.move_up_animation.get_current_image()
     
 
-    def get_intersection_position(self,maptype):
-        items = []
+    def get_intersection_position(self,maptype): #intersections of all types on map
+        items3 = []
+        items4 = []
+        items5 = []
+        items6 = []
+        items7 = []
+        items8 = []
+        items9 = []
+        items10 = []
+        items11 = []
         for i,row in enumerate(enviroment(maptype)):
             for j,item in enumerate(row):
                 if item == 3:
-                    items.append((j*32,i*32))
+                    items3.append((j*32,i*32))
+                elif item == 4:
+                    items4.append((j*32,i*32))
+                elif item == 5:
+                    items5.append((j*32,i*32))
+                elif item == 6:
+                    items6.append((j*32,i*32))
+                elif item == 7:
+                    items7.append((j*32,i*32))
+                elif item == 8:
+                    items8.append((j*32,i*32))
+                elif item == 9:
+                    items9.append((j*32,i*32))
+                elif item == 10:
+                    items10.append((j*32,i*32))
+                elif item == 11:
+                    items11.append((j*32,i*32))
 
-        return items
+        return [items3,items4,items5,items6,items7,items8,items9,items10,items11];
 
             
 

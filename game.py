@@ -20,9 +20,9 @@ BLUE = (0,0,255)
 RED = (255,0,0)
 
 #key variables
-maptype = 'simple3'
-playerCharacter = "graphic/character5.png"
-playerWalk = "graphic/character5Walk.png"
+maptype = 'hard1'
+playerCharacter = "graphic/character17.png"
+playerWalk = "graphic/character17Walk.png"
 playerExplosion = "graphic/explosion0.png"
 
 class Game(object):
@@ -35,26 +35,32 @@ class Game(object):
         # Create the font for displaying the score on the screen
         self.font = pygame.font.Font(None,35)
         # Create the menu of the game
-        self.menu = Menu(("Start","About","Exit"),font_color = WHITE,font_size=60)
+        self.menu = Menu(("Single Player","Multiplayer","Exit"),font_color = WHITE,font_size=60)
         # Create the player
         self.player = Player(32,128,playerCharacter, playerWalk, playerExplosion)
         # Create the blocks that will set the paths where the player can go
-        self.horizontal_blocks = pygame.sprite.Group()
-        self.vertical_blocks = pygame.sprite.Group()
+        self.up_blocks = pygame.sprite.Group()
+        self.down_blocks = pygame.sprite.Group()
+        self.left_blocks = pygame.sprite.Group()
+        self.right_blocks = pygame.sprite.Group()
         # Create a group for the dots on the screen
         self.dots_group = pygame.sprite.Group()
         # Set the enviroment:
         for i,row in enumerate(enviroment(maptype)):
             for j,item in enumerate(row):
-                if item == 1:
-                    self.horizontal_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
-                elif item == 2:
-                    self.vertical_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                if item == 1 or item == 4 or item == 8 or item == 9:
+                    self.up_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                if item == 2 or item == 6 or item == 8 or item == 10:
+                    self.left_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                if item == 1 or item == 5 or item == 10 or item == 11:
+                    self.down_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                if item == 2 or item == 7 or item == 9 or item == 11:
+                    self.right_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
         self.enemies = pygame.sprite.Group()
         self.enemies.add(Enemy(290,96,0,2,"graphic/character1.png","graphic/character1Walk.png",maptype))
         self.enemies.add(Enemy(290,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",maptype))
-        self.enemies.add(Enemy(546,128,0,2,"graphic/character3.png","graphic/character3Walk.png",maptype))
+        self.enemies.add(Enemy(543,125,0,2,"graphic/character3.png","graphic/character3Walk.png",maptype))
         self.enemies.add(Enemy(33,224,0,2,"graphic/character4.png","graphic/character4Walk.png",maptype))
         self.enemies.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",maptype))
         self.enemies.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",maptype))
@@ -124,7 +130,7 @@ class Game(object):
 
     def run_logic(self):
         if not self.game_over:
-            self.player.update(self.horizontal_blocks,self.vertical_blocks)
+            self.player.update(self.up_blocks,self.down_blocks,self.left_blocks,self.right_blocks)
             block_hit_list = pygame.sprite.spritecollide(self.player,self.dots_group,True)
             # When the block_hit_list contains one sprite that means that player hit a dot
             if len(block_hit_list) > 0:
@@ -136,7 +142,7 @@ class Game(object):
                 self.player.explosion = True
                 self.game_over_sound.play()
             self.game_over = self.player.game_over
-            self.enemies.update(self.horizontal_blocks,self.vertical_blocks)
+            self.enemies.update()
            # tkMessageBox.showinfo("GAME OVER!","Final Score = "+(str)(GAME.score))    
 
     def display_frame(self,screen):
@@ -155,8 +161,10 @@ class Game(object):
                 self.menu.display_frame(screen)
         else:
             # --- Draw the game here ---
-            self.horizontal_blocks.draw(screen)
-            self.vertical_blocks.draw(screen)
+            self.up_blocks.draw(screen)
+            self.down_blocks.draw(screen)
+            self.left_blocks.draw(screen)
+            self.right_blocks.draw(screen)
             draw_enviroment(screen, maptype)
             self.dots_group.draw(screen)
             self.enemies.draw(screen)

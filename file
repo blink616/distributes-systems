@@ -1,0 +1,142 @@
+PLAYER
+
+def update(self,up_blocks,down_blocks,left_blocks,right_blocks,updown_blocks,leftright_blocks,upleft_blocks,upright_blocks,downleft_blocks,downright_blocks):
+        if not self.explosion:
+            if self.rect.right < 0:
+                self.rect.left = SCREEN_WIDTH
+            elif self.rect.left > SCREEN_WIDTH:
+                self.rect.right = 0
+            if self.rect.bottom < 0:
+                self.rect.top = SCREEN_HEIGHT
+            elif self.rect.top > SCREEN_HEIGHT:
+                self.rect.bottom = 0
+            self.rect.x += self.change_x
+            self.rect.y += self.change_y
+
+            # This will stop the user for go up or down when it is inside of the box
+
+            for block in pygame.sprite.spritecollide(self,down_blocks,False):      
+                if self.change_y > 0:
+                    self.rect.centery = block.rect.centery
+                    self.change_y = 0
+            for block in pygame.sprite.spritecollide(self,up_blocks,False):
+                if self.change_y < 0:
+                    self.rect.centery = block.rect.centery
+                    self.change_y = 0
+            for block in pygame.sprite.spritecollide(self,right_blocks,False):
+                if self.change_x > 0:
+                    self.rect.centerx = block.rect.centerx
+                    self.change_x = 0
+            for block in pygame.sprite.spritecollide(self,left_blocks,False): 
+                if self.change_x < 0:
+                    self.rect.centerx = block.rect.centerx
+                    self.change_x = 0
+            for block in pygame.sprite.spritecollide(self,updown_blocks,False):      
+                    self.rect.centery = block.rect.centery
+                    self.change_y = 0
+            for block in pygame.sprite.spritecollide(self,leftright_blocks,False):
+                    self.rect.centery = block.rect.centery
+                    self.change_x = 0
+            for block in pygame.sprite.spritecollide(self,downright_blocks,False):
+                if self.change_x > 0:
+                    self.rect.centerx = block.rect.centerx
+                    self.change_x = 0
+                if self.change_y > 0:
+                    self.rect.centery = block.rect.centery
+                    self.change_y = 0
+            for block in pygame.sprite.spritecollide(self,downleft_blocks,False): 
+                if self.change_x < 0:
+                    self.rect.centerx = block.rect.centerx
+                    self.change_x = 0
+                if self.change_y > 0:
+                    self.rect.centery = block.rect.centery
+                    self.change_y = 0
+            for block in pygame.sprite.spritecollide(self,upright_blocks,False):
+                if self.change_x > 0:
+                    self.rect.centerx = block.rect.centerx
+                    self.change_x = 0
+                if self.change_y < 0:
+                    self.rect.centery = block.rect.centery
+                    self.change_y = 0
+            for block in pygame.sprite.spritecollide(self,upleft_blocks,False): 
+                if self.change_x < 0:
+                    self.rect.centerx = block.rect.centerx
+                    self.change_x = 0
+                if self.change_y < 0:
+                    self.rect.centery = block.rect.centery
+                    self.change_y = 0
+
+            # This will cause the animation to start
+            
+            if self.change_x > 0:
+                self.move_right_animation.update(10)
+                self.image = self.move_right_animation.get_current_image()
+            elif self.change_x < 0:
+                self.move_left_animation.update(10)
+                self.image = self.move_left_animation.get_current_image()
+
+            if self.change_y > 0:
+                self.move_down_animation.update(10)
+                self.image = self.move_down_animation.get_current_image()
+            elif self.change_y < 0:
+                self.move_up_animation.update(10)
+                self.image = self.move_up_animation.get_current_image()
+        else:
+            if self.explosion_animation.index == self.explosion_animation.get_length() -1:
+                pygame.time.wait(500)
+                self.game_over = True
+            self.explosion_animation.update(12)
+            self.image = self.explosion_animation.get_current_image()
+            
+
+
+ENVIRONMENT game
+        self.up_blocks = pygame.sprite.Group()
+        self.down_blocks = pygame.sprite.Group()
+        self.left_blocks = pygame.sprite.Group()
+        self.right_blocks = pygame.sprite.Group()
+        self.updown_blocks = pygame.sprite.Group()
+        self.leftright_blocks = pygame.sprite.Group()
+        self.upleft_blocks = pygame.sprite.Group()
+        self.upright_blocks= pygame.sprite.Group()
+        self.downleft_blocks = pygame.sprite.Group()
+        self.downright_blocks = pygame.sprite.Group()
+
+
+        # Set the enviroment:
+        for i,row in enumerate(enviroment(maptype)):
+            for j,item in enumerate(row):
+                if item == 1:
+                    self.updown_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 2:
+                    self.leftright_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 4:
+                    self.up_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 5:
+                    self.down_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 6:
+                    self.left_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 7:
+                    self.right_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 8:
+                    self.upleft_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 9:
+                    self.upright_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 10:
+                    self.downleft_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                elif item == 11:
+                    self.downright_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+
+
+            self.player.update(self.up_blocks,self.down_blocks,self.left_blocks,self.right_blocks,self.updown_blocks,self.leftright_blocks,self.upleft_blocks,self.upright_blocks,self.downleft_blocks,self.downright_blocks)
+
+                        self.up_blocks.draw(screen)
+            self.down_blocks.draw(screen)
+            self.left_blocks.draw(screen)
+            self.right_blocks.draw(screen)
+            self.updown_blocks.draw(screen)
+            self.leftright_blocks.draw(screen)
+            self.upleft_blocks.draw(screen)
+            self.upright_blocks.draw(screen)
+            self.downleft_blocks.draw(screen)
+            self.downright_blocks.draw(screen)
