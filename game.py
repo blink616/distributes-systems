@@ -21,21 +21,36 @@ RED = (255,0,0)
 
 #key variables
 maptype = 'hard1'
-playerCharacter = "graphic/character17.png"
-playerWalk = "graphic/character17Walk.png"
-playerExplosion = "graphic/explosion0.png"
+playerCharacter = "graphic/character6.png"
+playerWalk = "graphic/character6Walk.png"
+playerExplosion = "graphic/explosion6.png"
 
 class Game(object):
     def __init__(self):
         self.font = pygame.font.Font(None,40)
-        self.about = False
+
+        #defining menus
         self.game_over = True
+        self.mainmenu = True
+        self.single_player = False
+        self.multi_player = False
+        self.character = False
+        self.scoreboard = False
+
         # Create the variable for the score
         self.score = 0
         # Create the font for displaying the score on the screen
         self.font = pygame.font.Font(None,35)
+
         # Create the menu of the game
         self.menu = Menu(("Single Player","Multiplayer","Exit"),font_color = WHITE,font_size=60)
+        # Create the single player game menu of the game
+        self.single_menu = Menu(("Death Match","Clear Map","Score Board", "Back"),font_color = WHITE,font_size=60)
+        # Create the multiplayer game menu of the game
+        self.multi_menu = Menu(("Death Match","Clear Map","Back"),font_color = WHITE,font_size=60)
+        # Create the scorecard of the game
+        self.score_menu = Menu(("Score Board","Back"),font_color = WHITE,font_size=60)
+
         # Create the player
         self.player = Player(32,128,playerCharacter, playerWalk, playerExplosion)
         # Create the blocks that will set the paths where the player can go
@@ -81,21 +96,64 @@ class Game(object):
         for event in pygame.event.get(): # User did something
             if event.type == pygame.QUIT: # If user clicked close
                 return True
+            
             self.menu.event_handler(event)
+            self.single_menu.event_handler(event)
+            self.multi_menu.event_handler(event)
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if self.game_over and not self.about:
+
+                    #on main menu
+                    if self.game_over and self.mainmenu:
                         if self.menu.state == 0:
-                            # ---- START ------
+                            # ---- START SINGLE PLAYER------
                             self.__init__()
-                            self.game_over = False
+                            self.single_player = True
+                            self.mainmenu = False
                         elif self.menu.state == 1:
-                            # --- ABOUT ------
-                            self.about = True
+                            # ---- START MULTI PLAYER------
+                            self.__init__()
+                            self.multi_player = True
+                            self.mainmenu = False
                         elif self.menu.state == 2:
                             # --- EXIT -------
                             # User clicked exit
                             return True
+
+                    #on single player menu
+                    elif self.game_over and self.single_player:
+                        if self.single_menu.state == 0:
+                            # ---- START DEATH MATCH-----
+                            self.__init__()
+                            #self.game_over = False
+                        elif self.single_menu.state == 1:
+                            # --- START CLEAR MAP ------
+                            self.__init__()
+                            self.game_over = False
+                        elif self.single_menu.state == 2:
+                            # --- START CLEAR MAP ------
+                            self.__init__()
+                            self.scoreboard = True
+                        elif self.single_menu.state == 3:
+                            # --- BACK -------
+                            self.mainmenu = True
+                            self.single_player = False
+
+                    #on multi player menu
+                    elif self.game_over and self.multi_player:
+                        if self.multi_menu.state == 0:
+                            # ---- START DEATH MATCH-----
+                            self.__init__()
+                            #self.game_over = False
+                        elif self.multi_menu.state == 1:
+                            # --- START CLEAR MAP ------
+                            self.__init__()
+                            #self.game_over = False
+                        elif self.multi_menu.state == 2:
+                            # --- BACK -------
+                            self.mainmenu = True
+                            self.multi_player = False
 
                 elif event.key == pygame.K_RIGHT:
                     self.player.move_right()
@@ -111,7 +169,7 @@ class Game(object):
                 
                 elif event.key == pygame.K_ESCAPE:
                     self.game_over = True
-                    self.about = False
+                    self.multi_menu = False
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
@@ -142,21 +200,21 @@ class Game(object):
                 self.player.explosion = True
                 self.game_over_sound.play()
             self.game_over = self.player.game_over
+            self.mainmenu = self.player.game_over
             self.enemies.update()
-           # tkMessageBox.showinfo("GAME OVER!","Final Score = "+(str)(GAME.score))    
+            #tkMessageBox.showinfo("GAME OVER!","Final Score = "+(str)(GAME.score))    
 
     def display_frame(self,screen):
         # First, clear the screen to white. Don't put other drawing commands
         screen.fill(BLACK)
         # --- Drawing code should go here
         if self.game_over:
-            if self.about:
-                self.display_message(screen,"It is an arcade Game")
-                #"a maze containing various dots,\n"
-                #known as Pac-Dots, and four ghosts.\n"
-                #"The four ghosts roam the maze, trying to kill Pac-Man.\n"
-                #"If any of the ghosts hit Pac-Man, he loses a life;\n"
-                #"the game is over.\n")
+            if self.single_player:
+                self.single_menu.display_frame(screen)
+            elif self.multi_player:
+                self.multi_menu.display_frame(screen)
+            elif self.scoreboard:
+                self.display_message(screen, "SCOREBOARD PAGE")
             else:
                 self.menu.display_frame(screen)
         else:
