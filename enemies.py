@@ -68,6 +68,7 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.bottom = 0
 
         items = self.get_intersection_position(self.maptype)
+        
         direction = ""
         if self.rect.topleft in items[0]:
             direction = random.choice(("left","up","down","right"))
