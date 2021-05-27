@@ -8,6 +8,7 @@ from flag import *
 from enemies import *
 from flag import *
 from environment import *
+from character import *
 import tkinter
 from tkinter import messagebox
 SCREEN_WIDTH = 800
@@ -18,6 +19,9 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 BLUE = (0,0,255)
 RED = (255,0,0)
+YELLOW=(255,255,0)
+ 
+
 
 #key variables
 maptype = 'simple3'
@@ -27,15 +31,23 @@ playerExplosion = "graphic/explosion0.png"
 
 class Game(object):
     def __init__(self):
+        self.count=0
+        self.up = 180
+        self.down = 280
+        self.left = 130
+        self.right = 220
+
+
         self.font = pygame.font.Font(None,40)
         self.about = False
+        self.character = False
         self.game_over = True
         # Create the variable for the score
         self.score = 0
         # Create the font for displaying the score on the screen
         self.font = pygame.font.Font(None,35)
         # Create the menu of the game
-        self.menu = Menu(("Start","About","Exit"),font_color = WHITE,font_size=60)
+        self.menu = Menu(("Start","About","Select Character","Exit"),font_color = WHITE,font_size=60)
         # Create the player
         self.player = Player(32,128,playerCharacter, playerWalk, playerExplosion)
         # Create the blocks that will set the paths where the player can go
@@ -78,7 +90,7 @@ class Game(object):
             self.menu.event_handler(event)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if self.game_over and not self.about:
+                    if self.game_over and not self.about and not self.character:
                         if self.menu.state == 0:
                             # ---- START ------
                             self.__init__()
@@ -87,6 +99,10 @@ class Game(object):
                             # --- ABOUT ------
                             self.about = True
                         elif self.menu.state == 2:
+                            # --- Charcater Selection ------
+                            self.character = True
+
+                        elif self.menu.state == 3:
                             # --- EXIT -------
                             # User clicked exit
                             return True
@@ -106,6 +122,7 @@ class Game(object):
                 elif event.key == pygame.K_ESCAPE:
                     self.game_over = True
                     self.about = False
+                    self.character = False
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
@@ -139,6 +156,7 @@ class Game(object):
             self.enemies.update(self.horizontal_blocks,self.vertical_blocks)
            # tkMessageBox.showinfo("GAME OVER!","Final Score = "+(str)(GAME.score))    
 
+
     def display_frame(self,screen):
         # First, clear the screen to white. Don't put other drawing commands
         screen.fill(BLACK)
@@ -151,6 +169,198 @@ class Game(object):
                 #"The four ghosts roam the maze, trying to kill Pac-Man.\n"
                 #"If any of the ghosts hit Pac-Man, he loses a life;\n"
                 #"the game is over.\n")
+            elif self.character:
+
+                #Image
+                
+                tt=pygame.font.Font(None,50)
+                t = tt.render("Select Character",True,GREEN)
+                screen.blit(t,[270,100])
+                count=self.count
+                left=self.left
+                right=self.right
+                up=self.up
+                down=self.down
+            
+                for i in range(0,18):
+                    if i<=5:
+                        pygame.draw.line(screen, BLUE , [130+i*100, 180], [220+i*100,180], 2) #startpos, endpos,width
+                        pygame.draw.line(screen, BLUE , [130+i*100, 280], [220+i*100,280], 2)
+
+                        pygame.draw.line(screen, BLUE , [130+i*100, 180], [130+i*100,280], 2)
+                        pygame.draw.line(screen, BLUE , [220+i*100, 180], [220+i*100,280], 2)
+
+
+                        pika=  "graphic/character"+ str(i) +".png"
+                        pikachu = pygame.image.load(pika).convert()
+                        pikachu.set_colorkey(BLACK)
+                        r = pikachu.get_rect()
+                        r.topleft = (150+i*100,200)
+                        screen.blit(pikachu,r)
+                        #Name
+                        tt=pygame.font.Font(None,20)
+                        t = tt.render("Pikachu",True,GREEN)
+                        screen.blit(t,[150+i*100,250])
+
+                        pika_exp=  "graphic/explosion0.png"
+                        pikachu_exp = pygame.image.load(pika_exp).convert()
+                        pc = pygame.transform.chop(pygame.transform.chop(pikachu_exp, (30,0,0,0)), (30,30,pikachu_exp.get_width(),pikachu_exp.get_height()))
+                        r = pc.get_rect()
+                        r.topleft = (185+i*100,200)
+                        screen.blit(pc,r)
+
+
+                    elif i>5 and i<12:
+                        pygame.draw.line(screen, BLUE , [130+(i-6)*100, 300], [220+(i-6)*100,300], 2) #startpos, endpos,width
+                        pygame.draw.line(screen, BLUE , [130+(i-6)*100, 400], [220+(i-6)*100,400], 2)
+
+                        pygame.draw.line(screen, BLUE , [130+(i-6)*100, 300], [130+(i-6)*100,400], 2)
+                        pygame.draw.line(screen, BLUE , [220+(i-6)*100, 300], [220+(i-6)*100,400], 2)
+
+                        Sonic=  "graphic/character"+ str(i) +".png"       
+                        S = pygame.image.load(Sonic).convert()
+                        S.set_colorkey(BLACK)
+                        r = S.get_rect()
+                        r.topleft = (150+(i-6)*100,320)
+                        screen.blit(S,r)
+
+                        tt=pygame.font.Font(None,20)
+                        t = tt.render("Sonic",True,GREEN)
+                        screen.blit(t,[150+(i-6)*100,370])
+
+                        pc = pygame.transform.chop(pygame.transform.chop(pikachu_exp, (30,0,0,0)), (30,30,pikachu_exp.get_width(),pikachu_exp.get_height()))
+                        r = pc.get_rect()
+                        r.topleft = (180+(i-6)*100,320)
+                        screen.blit(pc,r)
+                    else:
+                        pygame.draw.line(screen, BLUE , [130+(i-12)*100, 420], [220+(i-12)*100,420], 2) #startpos, endpos,width
+                        pygame.draw.line(screen, BLUE , [130+(i-12)*100, 520], [220+(i-12)*100,520], 2)
+
+                        pygame.draw.line(screen, BLUE , [130+(i-12)*100, 420], [130+(i-12)*100,520], 2)
+                        pygame.draw.line(screen, BLUE , [220+(i-12)*100, 420], [220+(i-12)*100,520], 2)
+
+                        Sonic= "graphic/character"+ str(i) +".png"       
+                        S = pygame.image.load(Sonic).convert()
+                        S.set_colorkey(BLACK)
+                        r = S.get_rect()
+                        r.topleft = (150+(i-12)*100,440)
+                        screen.blit(S,r)
+
+                        tt=pygame.font.Font(None,20)
+                        t = tt.render("Blue Sonic",True,GREEN)
+                        screen.blit(t,[150+(i-12)*100,490])
+
+                        pc = pygame.transform.chop(pygame.transform.chop(pikachu_exp, (30,0,0,0)), (30,30,pikachu_exp.get_width(),pikachu_exp.get_height()))
+                        r = pc.get_rect()
+                        r.topleft = (180+(i-12)*100,440)
+                        screen.blit(pc,r)
+
+                
+                
+                
+                #horizontal
+                pygame.draw.line(screen, YELLOW , [self.left, self.up], [self.right,self.up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, YELLOW , [self.left, self.down], [self.right,self.down], 2)
+                #vertical
+                pygame.draw.line(screen, YELLOW , [self.left, self.up], [self.left,self.down], 2)
+                pygame.draw.line(screen, YELLOW , [self.right, self.up], [self.right,self.down], 2)
+
+                es=pygame.event.get()
+
+                for e in es:
+                    if e.type == pygame.KEYDOWN:
+                        if e.key == pygame.K_UP:
+                            print("Player moved up!")
+                            print(self.count)
+                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
+                            #vertical
+                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
+                            self.up=self.up-120
+                            self.down=self.down-120
+                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
+
+                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
+                            self.count-=6
+                            print(self.count)
+                            
+
+                        elif e.key == pygame.K_RIGHT:
+                            print("Player moved right!")
+                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
+                            #vertical
+                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
+
+                            self.left=self.left+100
+                            self.right=self.right+100
+
+                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
+
+                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
+
+                            self.count+=1
+                            print(self.count)
+
+
+                        elif e.key == pygame.K_DOWN:
+                            print("Player moved down!")
+                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
+                            #vertical
+                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
+                            print(up)
+                            self.up=self.up+120
+                            self.down=self.down+120
+
+                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
+
+                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
+                            self.count+=6
+                            print(self.count)
+
+
+                           
+
+                        elif e.key == pygame.K_LEFT:
+
+                            print("Player moved left!")
+                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
+                            #vertical
+                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
+                            self.left=self.left-100
+                            self.right=self.right-100
+                            print(left)
+                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
+                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
+
+                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
+                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
+
+                            self.count-=1
+                            print(self.count)
+
+                        elif e.key==pygame.K_RETURN:
+                            path="graphic/character"+ str(count) +".png" 
+                            self.playerCharacter="graphic/character"+ str(count) +".png"
+                            print(path)
+                            self.character=False
+
+               
+               
+
+
             else:
                 self.menu.display_frame(screen)
         else:
@@ -216,3 +426,5 @@ class Menu(object):
             elif event.key == pygame.K_DOWN:
                 if self.state < len(self.items) -1:
                     self.state += 1
+
+    
