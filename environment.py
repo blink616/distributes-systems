@@ -73,14 +73,55 @@ def enviroment(maptype):
                 (1,3,1,1,1,1,1,1,1,3,1,1,1,3,1,1,1,3,1,1,1,1,1,3,1),    
                 (0,2,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,2,0,0,0,0,0,2,0))
 
+    elif maptype == 'hard1':
+        grid = ((0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0),
+                (1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,4,1,3,1),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,2,0,2,0),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,8,1,11,0,2,0),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,2,0,0,0,2,0),
+                (1,3,1,1,1,1,1,1,1,3,1,1,1,4,1,1,1,3,1,5,1,1,1,3,1),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,2,0,0,0,2,0,0,0,0,0,2,0),
+                (0,2,0,8,1,1,1,1,1,3,1,1,1,7,0,0,0,2,0,0,0,0,0,2,0),
+                (0,2,0,2,0,0,0,0,0,2,0,0,0,2,0,0,0,2,0,0,0,0,0,2,0),
+                (1,7,0,10,1,1,1,1,1,3,1,1,1,5,1,1,1,5,1,1,1,1,1,3,1),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0),
+                (1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,4,1,1,1,1,1,3,1),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0),
+                (1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,3,1),    
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0),
+                (0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,2,0,0,0,0,0,2,0))
+
     return grid
 
 def draw_enviroment(screen,maptype):
     for i,row in enumerate(enviroment(maptype)):
         for j,item in enumerate(row):
-            if item == 1:
-                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32,i*32], 3)
-                pygame.draw.line(screen, BLUE , [j*32, i*32+32], [j*32+32,i*32+32], 3)
-            elif item == 2:
-                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32,i*32+32], 3)
-                pygame.draw.line(screen, BLUE , [j*32+32, i*32], [j*32+32,i*32+32], 3)
+            if item == 1: #up down
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32,i*32], 1)
+                pygame.draw.line(screen, BLUE , [j*32, i*32+32], [j*32+32,i*32+32], 1)
+            elif item == 2: #left right
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32,i*32+32], 1)
+                pygame.draw.line(screen, BLUE , [j*32+32, i*32], [j*32+32,i*32+32],1)
+            elif item == 4: #up
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32,i*32], 1)
+            elif item == 5: #down
+                pygame.draw.line(screen, BLUE , [j*32, i*32+32], [j*32+32,i*32+32], 1)
+            elif item == 6: #left
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32,i*32+32], 1)
+            elif item == 7: #right
+                pygame.draw.line(screen, BLUE , [j*32+32, i*32], [j*32+32,i*32+32], 1)
+            elif item == 8: #up left
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32,i*32], 1)
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32,i*32+32], 1)
+            elif item == 9: #up right
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32+32,i*32], 1)
+                pygame.draw.line(screen, BLUE , [j*32+32, i*32], [j*32+32,i*32+32], 1)
+            elif item == 10: #left down
+                pygame.draw.line(screen, BLUE , [j*32, i*32], [j*32,i*32+32], 1)
+                pygame.draw.line(screen, BLUE , [j*32, i*32+32], [j*32+32,i*32+32], 1)
+            elif item == 11: #right down
+                pygame.draw.line(screen, BLUE , [j*32+32, i*32], [j*32+32,i*32+32], 1)
+                pygame.draw.line(screen, BLUE , [j*32, i*32+32], [j*32+32,i*32+32], 1)
+                
