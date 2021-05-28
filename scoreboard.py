@@ -1,4 +1,5 @@
 import pygame
+import math
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 576
@@ -103,3 +104,44 @@ class Scoreboard(object):
     def event_handler(self,event):
         if event.type == pygame.KEYDOWN:
             self.state = 0
+
+    #for death match score is kills and start_time is deaths, end time is always zero
+    def newscore(self, playerName, gametype, score, start_time, end_time):
+        indexlower = 10
+        if gametype == "clearmap":
+            #find highscore position
+            for score_tuple in range(5):
+                if (self.clearmap_score[score_tuple][1] == "-") or (int(self.clearmap_score[score_tuple][1]) < score) or (int(self.clearmap_score[score_tuple][1]) == score and int(self.clearmap_score[score_tuple][2]) > (math.ceil(end_time - start_time))):
+                    indexlower = score_tuple
+                    break
+                
+            #new highscore is made
+            if indexlower != 10:
+                templist = [playerName, str(score), str(math.ceil(end_time - start_time))]
+                self.clearmap_score.insert(indexlower,templist)
+                self.clearmap_score.pop()
+
+        if gametype == "deathmatch":
+            #find highscore position
+            for score_tuple in range(5):
+                #here score is kill so kills should be maximum, if same then start_time ie. deaths should be minimum
+                if (self.deathmatch_score[score_tuple][2] == "-") or (int(self.deathmatch_score[score_tuple][2]) < score) or (int(self.deathmatch_score[score_tuple][2]) == score and int(self.deathmatch_score[score_tuple][1]) > (start_time)):
+                    indexlower = score_tuple
+                    break
+                
+            #new highscore is made
+            if indexlower != 10:
+                templist = [playerName, str(score), str(start_time)]
+                self.deathmatch_score.insert(indexlower,templist)
+                self.deathmatch_score.pop()
+
+        #there was a new highscore overall
+        if indexlower != 10:
+            f = open("scoreboard.txt", "w")
+            for x in range(5):
+                f.write(self.clearmap_score[x][0] + "," + self.clearmap_score[x][1] + "," + self.clearmap_score[x][2] + ",\n")
+            for x in range(5):
+                f.write(self.deathmatch_score[x][0] + "," + self.deathmatch_score[x][1] + "," +  self.deathmatch_score[x][2] + ",\n")
+            
+            f.close()
+                

@@ -10,6 +10,7 @@ from enemies import *
 from environment import *
 import tkinter
 from tkinter import messagebox
+import time
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 576
 
@@ -18,12 +19,6 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 BLUE = (0,0,255)
 RED = (255,0,0)
-
-#key variables
-maptype = 'hard1'
-playerCharacter = "graphic/character6.png"
-playerWalk = "graphic/character6Walk.png"
-playerExplosion = "graphic/explosion6.png"
 
 class Game(object):
     def __init__(self):
@@ -36,6 +31,15 @@ class Game(object):
         self.multi_player = False
         self.character = False
         self.scoreboard = False
+
+        #key variables
+        self.maptype = 'hard1'
+        self.playerName = "playername"
+        self.playerCharacter = "graphic/character6.png"
+        self.playerWalk = "graphic/character6Walk.png"
+        self.playerExplosion = "graphic/explosion6.png"
+        self.start_time = 0
+        self.end_time = 0
 
         # Create the variable for the score
         self.score = 0
@@ -52,7 +56,7 @@ class Game(object):
         self.score_menu = Scoreboard(("Score Board","Back"),select_color = BLUE, font_color = WHITE,font_size=30)
 
         # Create the player
-        self.player = Player(32,194,playerCharacter, playerWalk, playerExplosion)
+        self.player = Player(32,194,self.playerCharacter, self.playerWalk, self.playerExplosion)
         # Create the blocks that will set the paths where the player can go
         self.up_blocks = pygame.sprite.Group()
         self.down_blocks = pygame.sprite.Group()
@@ -61,7 +65,7 @@ class Game(object):
         # Create a group for the dots on the screen
         self.dots_group = pygame.sprite.Group()
         # Set the enviroment:
-        for i,row in enumerate(enviroment(maptype)):
+        for i,row in enumerate(enviroment(self.maptype)):
             for j,item in enumerate(row):
                 if item == 1 or item == 4 or item == 8 or item == 9:
                     self.up_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
@@ -73,16 +77,16 @@ class Game(object):
                     self.right_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
         self.enemies = pygame.sprite.Group()
-        self.enemies.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",maptype))
-        self.enemies.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",maptype))
-        self.enemies.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",maptype))
-        self.enemies.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",maptype))
-        self.enemies.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",maptype))
-        self.enemies.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",maptype))
-        self.enemies.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",maptype))
-        self.enemies.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",maptype))
+        self.enemies.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype))
+        self.enemies.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype))
+        self.enemies.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype))
+        self.enemies.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype))
+        self.enemies.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype))
+        self.enemies.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype))
+        self.enemies.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype))
+        self.enemies.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype))
         # Add the dots inside the game
-        for i, row in enumerate(enviroment(maptype)):
+        for i, row in enumerate(enviroment(self.maptype)):
             for j, item in enumerate(row):
                 if item != 0:
                     self.dots_group.add(Flag(j*32+12,i*32+12,WHITE,8,8))
@@ -138,6 +142,8 @@ class Game(object):
                             self.__init__()
                             self.game_over = False
                             self.single_player = False
+                            self.start_time = time.time()
+
                         elif self.single_menu.state == 2:
                             # --- START CLEAR MAP ------
                             self.__init__()
@@ -174,6 +180,7 @@ class Game(object):
                             self.__init__()
                             self.mainmenu = True
                             self.multi_player = False
+                            
 
                 elif event.key == pygame.K_RIGHT:
                     self.player.move_right()
@@ -226,6 +233,12 @@ class Game(object):
             self.scoreboard = self.player.game_over
             self.enemies.update()
 
+            #if this event kills player and we move to scorescreen
+            if self.player.game_over == True:
+                self.end_time = time.time()
+                self.score_menu.newscore(self.playerName,"clearmap", self.score, self.start_time, self.end_time)
+        
+
     def display_frame(self,screen):
         # First, clear the screen to white. Don't put other drawing commands
         screen.fill(BLACK)
@@ -245,7 +258,7 @@ class Game(object):
             self.down_blocks.draw(screen)
             self.left_blocks.draw(screen)
             self.right_blocks.draw(screen)
-            draw_enviroment(screen, maptype)
+            draw_enviroment(screen, self.maptype)
             self.dots_group.draw(screen)
             self.enemies.draw(screen)
             screen.blit(self.player.image,self.player.rect)
