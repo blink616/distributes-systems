@@ -4,9 +4,9 @@
 import pygame
 from player import Player
 from environment import *
+from scoreboard import *
 from flag import *
 from enemies import *
-from flag import *
 from environment import *
 import tkinter
 from tkinter import messagebox
@@ -49,10 +49,10 @@ class Game(object):
         # Create the multiplayer game menu of the game
         self.multi_menu = Menu(("Death Match","Clear Map","Back"),font_color = WHITE,font_size=60)
         # Create the scorecard of the game
-        self.score_menu = Menu(("Score Board","Back"),font_color = WHITE,font_size=60)
+        self.score_menu = Scoreboard(("Score Board","Back"),select_color = BLUE, font_color = WHITE,font_size=30)
 
         # Create the player
-        self.player = Player(32,128,playerCharacter, playerWalk, playerExplosion)
+        self.player = Player(32,194,playerCharacter, playerWalk, playerExplosion)
         # Create the blocks that will set the paths where the player can go
         self.up_blocks = pygame.sprite.Group()
         self.down_blocks = pygame.sprite.Group()
@@ -76,7 +76,7 @@ class Game(object):
         self.enemies.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",maptype))
         self.enemies.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",maptype))
         self.enemies.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",maptype))
-        self.enemies.add(Enemy(32,224,0,2,"graphic/character4.png","graphic/character4Walk.png",maptype))
+        self.enemies.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",maptype))
         self.enemies.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",maptype))
         self.enemies.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",maptype))
         self.enemies.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",maptype))
@@ -97,9 +97,14 @@ class Game(object):
             if event.type == pygame.QUIT: # If user clicked close
                 return True
             
-            self.menu.event_handler(event)
-            self.single_menu.event_handler(event)
-            self.multi_menu.event_handler(event)
+            if self.game_over and self.scoreboard:
+                self.score_menu.event_handler(event)
+            elif self.game_over and self.single_player:
+                self.single_menu.event_handler(event)
+            elif self.game_over and self.multi_player:
+                self.multi_menu.event_handler(event)
+            elif self.game_over and self.mainmenu:
+                self.menu.event_handler(event)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
@@ -126,32 +131,47 @@ class Game(object):
                         if self.single_menu.state == 0:
                             # ---- START DEATH MATCH-----
                             self.__init__()
-                            #self.game_over = False
+                            self.mainmenu = True
+                            self.single_player = False
                         elif self.single_menu.state == 1:
                             # --- START CLEAR MAP ------
                             self.__init__()
                             self.game_over = False
+                            self.single_player = False
                         elif self.single_menu.state == 2:
                             # --- START CLEAR MAP ------
                             self.__init__()
                             self.scoreboard = True
+                            self.single_player = False
                         elif self.single_menu.state == 3:
                             # --- BACK -------
+                            self.__init__()
                             self.mainmenu = True
                             self.single_player = False
+
+                    #on score menu
+                    elif self.game_over and self.scoreboard:
+                        if self.score_menu.state == 0:
+                            self.__init__()
+                            self.single_player = True
+                            self.scoreboard = False
+                            self.mainmenu = False
 
                     #on multi player menu
                     elif self.game_over and self.multi_player:
                         if self.multi_menu.state == 0:
                             # ---- START DEATH MATCH-----
                             self.__init__()
-                            #self.game_over = False
+                            self.mainmenu = True
+                            self.multi_player = False
                         elif self.multi_menu.state == 1:
                             # --- START CLEAR MAP ------
                             self.__init__()
-                            #self.game_over = False
+                            self.mainmenu = True
+                            self.multi_player = False
                         elif self.multi_menu.state == 2:
                             # --- BACK -------
+                            self.__init__()
                             self.mainmenu = True
                             self.multi_player = False
 
@@ -169,7 +189,10 @@ class Game(object):
                 
                 elif event.key == pygame.K_ESCAPE:
                     self.game_over = True
-                    self.multi_menu = False
+                    self.mainmenu = True
+                    self.multi_player = False
+                    self.single_player = False
+                    self.scoreboard = False
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
@@ -200,9 +223,8 @@ class Game(object):
                 self.player.explosion = True
                 self.game_over_sound.play()
             self.game_over = self.player.game_over
-            self.mainmenu = self.player.game_over
+            self.scoreboard = self.player.game_over
             self.enemies.update()
-            #tkMessageBox.showinfo("GAME OVER!","Final Score = "+(str)(GAME.score))    
 
     def display_frame(self,screen):
         # First, clear the screen to white. Don't put other drawing commands
@@ -214,7 +236,7 @@ class Game(object):
             elif self.multi_player:
                 self.multi_menu.display_frame(screen)
             elif self.scoreboard:
-                self.display_message(screen, "SCOREBOARD PAGE")
+                self.score_menu.display_frame(screen)
             else:
                 self.menu.display_frame(screen)
         else:
@@ -230,7 +252,7 @@ class Game(object):
             #text=self.font.render("Score: "+(str)(self.score), 1,self.RED)
             #screen.blit(text, (30, 650))
             # Render the text for the score
-            text = self.font.render("Score: " + str(self.score),True,GREEN)
+            text = self.font.render("Flags: " + str(self.score),True,GREEN)
             # Put the text on the screen
             screen.blit(text,[120,20])
             
