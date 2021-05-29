@@ -46,6 +46,13 @@ class Game(object):
         self.start_time = 0
         self.end_time = 0
 
+        #character
+        self.count=0
+        self.up = 180
+        self.down = 280
+        self.left = 130
+        self.right = 220
+        self.name=['Kraken','Lynch','Mad Dog','ODoyle','Psycho','Ranger','Ratchet','Reaper','Rigs','Lightning','Fire-Bred','Iron Heart','Steel Foil','Gorgon','Baal','Azrael','Schizo','Manic']
 
         #map
 
@@ -57,10 +64,47 @@ class Game(object):
 
         # Create the variable for the score
         self.score = 0
+        # Create the font for displaying the score on the screen
         self.font = pygame.font.Font(None,35)
 
+        # Create the menu of the game
+        self.menu = Menu(("Single Player","Multiplayer","Select Player","Exit"),font_color = WHITE,font_size=60)
+        # Create the single player game menu of the game
+        self.single_menu = Menu(("Death Match","Clear Map","Select Map","Score Board", "Back"),font_color = WHITE,font_size=60)
+        # Create the multiplayer game menu of the game
+        self.multi_menu = Menu(("Death Match","Clear Map","Select Map","Back"),font_color = WHITE,font_size=60)
+        # Create the scorecard of the game
+        self.score_menu = Scoreboard(("Score Board","Back"),select_color = BLUE, font_color = WHITE,font_size=30)
+
+        
+
+        # Create the player
+        self.player = Player(32,194,self.playerCharacter, self.playerWalk, self.playerExplosion)
+        # Create the blocks that will set the paths where the player can go
+        self.up_blocks = pygame.sprite.Group()
+        self.down_blocks = pygame.sprite.Group()
+        self.left_blocks = pygame.sprite.Group()
+        self.right_blocks = pygame.sprite.Group()
+        # Create a group for the dots on the screen
+        self.dots_group = pygame.sprite.Group()
+        # Set the enviroment:
+        for i,row in enumerate(enviroment(self.maptype)):
+            for j,item in enumerate(row):
+                if item == 1 or item == 4 or item == 8 or item == 9:
+                    self.up_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                if item == 2 or item == 6 or item == 8 or item == 10:
+                    self.left_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                if item == 1 or item == 5 or item == 10 or item == 11:
+                    self.down_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+                if item == 2 or item == 7 or item == 9 or item == 11:
+                    self.right_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
+        # Create the enemies
+        self.enemies = pygame.sprite.Group()
+        self.enemies.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype))
+        self.enemies.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype))
         self.enemies.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype))
         self.enemies.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype))
+        self.enemies.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype))
         self.enemies.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype))
         self.enemies.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype))
         self.enemies.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype))
@@ -69,6 +113,7 @@ class Game(object):
             for j, item in enumerate(row):
                 if item != 0:
                     self.dots_group.add(Flag(j*32+12,i*32+12,WHITE,8,8))
+
         # Load the sound effects
         self.pacman_sound = pygame.mixer.Sound("sound/pacman_sound.ogg")
         self.game_over_sound = pygame.mixer.Sound("sound/game_over_sound.ogg")
@@ -139,7 +184,7 @@ class Game(object):
                             self.start_time = time.time()
 
                         elif self.single_menu.state == 2:
-
+                            # --- SELECT MAP ---
                             self.__init__()
 
                             self.map=True
@@ -182,7 +227,9 @@ class Game(object):
                             self.__init__()
                             self.mainmenu = True
                             self.multi_player = False
+                            
 
+                elif event.key == pygame.K_RIGHT:
                     self.player.move_right()
 
                 elif event.key == pygame.K_LEFT:
