@@ -1,6 +1,6 @@
 import pygame
 from spriteAnimation import Animation
-
+from bullet import *
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 576
 
@@ -20,6 +20,10 @@ class Player(pygame.sprite.Sprite):
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.rect.topleft = (x,y)
+        self.direction = "right"
+        self.boolx = False
+        self.booly = False
+        self.blocks_array=[]
         # Load image which will be for the animation
         img = pygame.image.load(playerWalk).convert()
         # Create the animations objects
@@ -35,6 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.player_image.set_colorkey(BLACK)
 
     def update(self,up_blocks,down_blocks,left_blocks,right_blocks):
+        self.blocks_array = [up_blocks, down_blocks, left_blocks, right_blocks]
         if not self.explosion:
             if self.rect.right < 0:
                 self.rect.left = SCREEN_WIDTH
@@ -44,13 +49,18 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = SCREEN_HEIGHT
             elif self.rect.top > SCREEN_HEIGHT:
                 self.rect.bottom = 0
+            tempx = self.rect.x
+            tempy = self.rect.y
             self.rect.x += self.change_x
             self.rect.y += self.change_y
+            # if(self.rect.x-tempx >= 3 or self.rect.x-tempx <=-3):
+            #     self.boolx = True
+            # if(self.rect.y-tempy >= 3 or self.rect.y-tempy <=-3):
+            #     self.booly = True
 
             # This will stop the user for go up or down when it is inside of the box
 
             for block in pygame.sprite.spritecollide(self,up_blocks,False):
-                
                 if self.change_y < 0:
                     self.rect.centery = block.rect.centery
                     self.change_y = 0
@@ -92,35 +102,47 @@ class Player(pygame.sprite.Sprite):
             self.explosion_animation.update(12)
             self.image = self.explosion_animation.get_current_image()
             
-
+    temp_direction = ""
     def move_right(self):
         self.change_x = 3
-
+        self.direction = "right"
+            
     def move_left(self):
         self.change_x = -3
+        self.direction = "left"
+        
 
     def move_up(self):
         self.change_y = -3
+        self.direction = "up"
 
     def move_down(self):
         self.change_y = 3
+        self.direction = "down"
 
     def stop_move_right(self):
         if self.change_x != 0:
             self.image = self.player_image
+            self.direction = "right"
         self.change_x = 0
 
     def stop_move_left(self):
         if self.change_x != 0:
             self.image = pygame.transform.flip(self.player_image,True,False)
+            self.direction = "left"
         self.change_x = 0
 
     def stop_move_up(self):
         if self.change_y != 0:
             self.image = pygame.transform.rotate(self.player_image,90)
+            self.direction = "up"
         self.change_y = 0
 
     def stop_move_down(self):
         if self.change_y != 0:
             self.image = pygame.transform.rotate(self.player_image,270)
+            self.direction = "down"
         self.change_y = 0
+    def create_bullet(self):
+    
+        return Bullet(self.rect.x, self.rect.y, self.direction, self.blocks_array)

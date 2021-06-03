@@ -54,7 +54,7 @@ class Scoreboard(object):
                 #column 3
                 pygame.draw.line(screen, BLUE , [j*32+jend3, i*32], [j*32+jend3,i*32+32],1) #right
 
-        #headings
+        #headings 
         label = self.font.render(self.headings[0],True,self.font_color)
         screen.blit(label,(10.5*32+6, 0.5*32+6))
 

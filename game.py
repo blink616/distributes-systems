@@ -10,7 +10,9 @@ from enemies import *
 from environment import *
 from mapSelect import *
 from characterSelect import *
+from setConnection import *
 from menu import *
+from bullet import *
 import tkinter
 from tkinter import messagebox
 import time
@@ -23,45 +25,53 @@ WHITE = (255,255,255)
 BLUE = (0,0,255)
 RED = (255,0,0)
 YELLOW=(255,255,0)
+pygame.init()
+delay_time = 1000  # 8 seconds
+pause_time = 8000 # 6 seconds
+bullet_event = pygame.USEREVENT + 1
+pygame.time.set_timer(bullet_event, delay_time)
+
 
 class Game(object):
+    
+    #CHANGE
+    playerID = 0
+    maptype = 'map3'
+    playerName = "playername"
+    playerCharacter = "graphic/character6.png"
+    playerWalk = "graphic/character6Walk.png"
+    playerExplosion = "graphic/explosion6.png"
+    port = 11222
+    serverurl = "127.0.0.1"
+    
     def __init__(self):
         self.font = pygame.font.Font(None,40)
 
         #defining menus
-        self.game_over = True
         self.mainmenu = True
+        self.deathMatch_gameover = True
+        self.clearMap_gameover = True
         self.single_player = False
         self.multi_player = False
         self.character = False
         self.scoreboard = False
         self.mapSingle = False
         self.mapMulti = False
-
-        #key variables
-        self.maptype = 'map3'
-        self.playerName = "playername"
-        self.playerCharacter = "graphic/character6.png"
-        self.playerWalk = "graphic/character6Walk.png"
-        self.playerExplosion = "graphic/explosion6.png"
+  
         self.start_time = 0
         self.end_time = 0
 
-        #character
-        self.count=0
-        self.up = 180
-        self.down = 280
-        self.left = 130
-        self.right = 220
-        self.name=['Kraken','Lynch','Mad Dog','ODoyle','Psycho','Ranger','Ratchet','Reaper','Rigs','Lightning','Fire-Bred','Iron Heart','Steel Foil','Gorgon','Baal','Azrael','Schizo','Manic']
-
         # Create the variable for the score
         self.score = 0
+        self.death = 0
+        self.no_shots = 0
+
         # Create the font for displaying the score on the screen
         self.font = pygame.font.Font(None,35)
 
         #create map select and character select
         self.mapSelect = mapSelect()
+        self.characterSelect = characterSelect()
 
         # Create the menu of the game
         self.menu = Menu(("Single Player","Multiplayer","Select Player","Exit"),font_color = WHITE,font_size=60)
@@ -81,6 +91,8 @@ class Game(object):
         self.down_blocks = pygame.sprite.Group()
         self.left_blocks = pygame.sprite.Group()
         self.right_blocks = pygame.sprite.Group()
+        self.bullet_group = pygame.sprite.Group()
+        self.enemy_bullet_group = pygame.sprite.Group()
         # Create a group for the dots on the screen
         self.dots_group = pygame.sprite.Group()
         # Set the enviroment:
@@ -95,15 +107,26 @@ class Game(object):
                 if item == 2 or item == 7 or item == 9 or item == 11:
                     self.right_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
-        self.enemies = pygame.sprite.Group()
-        self.enemies.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype))
-        self.enemies.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype))
-        self.enemies.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype))
-        self.enemies.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype))
-        self.enemies.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype))
-        self.enemies.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype))
-        self.enemies.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype))
-        self.enemies.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype))
+        self.blocks_array = [self.up_blocks, self.down_blocks, self.left_blocks, self.right_blocks]
+        self.enemiesClearMap = pygame.sprite.Group()
+        self.enemiesClearMap.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "clearmap", self.blocks_array))
+        self.enemiesClearMap.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "clearmap", self.blocks_array))
+        self.enemiesClearMap.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "clearmap", self.blocks_array))
+        self.enemiesClearMap.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype, "clearmap", self.blocks_array))
+        self.enemiesClearMap.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "clearmap", self.blocks_array))
+        self.enemiesClearMap.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "clearmap", self.blocks_array))
+        self.enemiesClearMap.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "clearmap", self.blocks_array))
+        self.enemiesClearMap.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype,"clearmap", self.blocks_array))
+        self.enemiesDeathMatch = pygame.sprite.Group()
+        self.enemiesDeathMatch.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "deathmatch", self.blocks_array))
+        self.enemiesDeathMatch.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "deathmatch", self.blocks_array))
+        self.enemiesDeathMatch.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "deathmatch", self.blocks_array))
+        self.enemiesDeathMatch.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype, "deathmatch", self.blocks_array))
+        self.enemiesDeathMatch.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "deathmatch", self.blocks_array))
+        self.enemiesDeathMatch.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "deathmatch", self.blocks_array))
+        self.enemiesDeathMatch.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "deathmatch", self.blocks_array))
+        self.enemiesDeathMatch.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype,"deathmatch", self.blocks_array))
+        
         # Add the dots inside the game
         for i, row in enumerate(enviroment(self.maptype)):
             for j, item in enumerate(row):
@@ -115,26 +138,24 @@ class Game(object):
         self.game_over_sound = pygame.mixer.Sound("sound/game_over_sound.ogg")
 
 
-    def process_events(self):
-        if self.mapSingle == True:
-            return False
-
+    def process_events(self,screen):
         for event in pygame.event.get(): # User did something
             if event.type == pygame.QUIT: # If user clicked close
                 return True
             
-            if self.game_over and self.scoreboard:
+            if (self.clearMap_gameover and self.deathMatch_gameover) and self.scoreboard:
                 self.score_menu.event_handler(event)
-            elif self.game_over and self.single_player:
+            elif (self.clearMap_gameover and self.deathMatch_gameover) and self.character:
+                self.characterSelect.event_handler(event,screen)
+            elif (self.clearMap_gameover and self.deathMatch_gameover) and self.mapSingle:
+                self.mapSelect.event_handler(event,screen)
+                print("event is handled")
+            elif (self.clearMap_gameover and self.deathMatch_gameover) and self.single_player:
                 self.single_menu.event_handler(event)
-            elif self.game_over and self.multi_player:
+            elif (self.clearMap_gameover and self.deathMatch_gameover) and self.multi_player:
                 self.multi_menu.event_handler(event)
 
-            elif self.game_over and not self.character:
-                self.menu.event_handler(event)
-
-
-            elif self.game_over and self.mainmenu:
+            elif (self.clearMap_gameover and self.deathMatch_gameover) and self.mainmenu:
                 self.menu.event_handler(event)
 
 
@@ -142,7 +163,7 @@ class Game(object):
                 if event.key == pygame.K_RETURN:
 
                     #on main menu
-                    if self.game_over and self.mainmenu:
+                    if (self.clearMap_gameover and self.deathMatch_gameover) and self.mainmenu:
                         if self.menu.state == 0:
                             # ---- START SINGLE PLAYER------
                             self.__init__()
@@ -151,6 +172,8 @@ class Game(object):
                         elif self.menu.state == 1:
                             # ---- START MULTI PLAYER------
                             self.__init__()
+                            self.playerID = input("Enter ID:")
+                            self.setConnection = setConnection(self.playerID, self.port, self.serverurl)
                             self.multi_player = True
                             self.mainmenu = False
                         elif self.menu.state == 2:
@@ -165,27 +188,26 @@ class Game(object):
                             return True
 
                     #on single player menu
-                    elif self.game_over and self.single_player:
+                    elif (self.clearMap_gameover and self.deathMatch_gameover) and self.single_player:
 
 
                         if self.single_menu.state == 0:
                             # ---- START DEATH MATCH-----
                             self.__init__()
-                            #self.game_over = False
-                            self.mainmenu = True
+                            self.deathMatch_gameover = False
                             self.single_player = False
+                            
 
                         elif self.single_menu.state == 1:
                             # --- START CLEAR MAP ------
                             self.__init__()
-                            self.game_over = False
+                            self.clearMap_gameover = False
                             self.single_player = False
                             self.start_time = time.time()
 
                         elif self.single_menu.state == 2:
                             # --- SELECT MAP ---
                             self.__init__()
-
                             self.mapSingle=True
                             self.single_player=False
 
@@ -202,7 +224,7 @@ class Game(object):
                             self.single_player = False
 
                     #on score menu
-                    elif self.game_over and self.scoreboard:
+                    elif (self.clearMap_gameover and self.deathMatch_gameover) and self.scoreboard:
                         if self.score_menu.state == 0:
                             self.__init__()
                             self.single_player = True
@@ -210,7 +232,7 @@ class Game(object):
                             self.mainmenu = False
 
                     #on multi player menu
-                    elif self.game_over and self.multi_player:
+                    elif (self.clearMap_gameover and self.deathMatch_gameover) and self.multi_player:
                         if self.multi_menu.state == 0:
                             # ---- START DEATH MATCH-----
                             self.__init__()
@@ -221,11 +243,12 @@ class Game(object):
                             self.__init__()
                             self.mainmenu = True
                             self.multi_player = False
-                        elif self.single_menu.state == 2:
+                        elif self.multi_menu.state == 2:
                             # --- SELECT MAP ---
                             self.__init__()
-                            self.mapMulti=True
-                            self.multi_player=False
+                            self.mainmenu = True
+                            self.multi_player = False
+
                         elif self.multi_menu.state == 2:
                             # --- BACK -------
                             self.__init__()
@@ -244,16 +267,18 @@ class Game(object):
 
                 elif event.key == pygame.K_DOWN:
                     self.player.move_down()
+                elif event.key == pygame.K_RCTRL:
+                    self.bullet_group.add(self.player.create_bullet())
                 
                 elif event.key == pygame.K_ESCAPE:
-                    self.game_over = True
+                    self.deathMatch_gameover = True
+                    self.clearMap_gameover = True
                     self.mainmenu = True
                     self.multi_player = False
                     self.single_player = False
                     self.scoreboard = False
-
                     self.character = False
-                    self.mapSingle=False
+                    self.mapSingle = False
 
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
@@ -265,13 +290,23 @@ class Game(object):
                 elif event.key == pygame.K_DOWN:
                     self.player.stop_move_down()
 
+            elif event.type == bullet_event:
+                     for enemy in self.enemiesDeathMatch:
+                         self.enemy_bullet_group.add(enemy.create_bullet())
+                         if self.no_shots == 0:
+                             pygame.time.set_timer(bullet_event, delay_time)
+                         self.no_shots += 1
+                         if self.no_shots == 5:
+                            pygame.time.set_timer(bullet_event, pause_time)
+                            self.no_shots = 0   
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.player.explosion = True
                     
         return False
 
     def run_logic(self):
-        if not self.game_over:
+        if not self.clearMap_gameover:
             self.player.update(self.up_blocks,self.down_blocks,self.left_blocks,self.right_blocks)
             block_hit_list = pygame.sprite.spritecollide(self.player,self.dots_group,True)
             # When the block_hit_list contains one sprite that means that player hit a dot
@@ -279,232 +314,71 @@ class Game(object):
                 # Here will be the sound effect
                 self.pacman_sound.play()
                 self.score += 1
-            block_hit_list = pygame.sprite.spritecollide(self.player,self.enemies,True)
+            block_hit_list = pygame.sprite.spritecollide(self.player,self.enemiesClearMap,True)
             if len(block_hit_list) > 0:
                 self.player.explosion = True
                 self.game_over_sound.play()
-            self.game_over = self.player.game_over
+            self.clearMap_gameover = self.player.game_over
             self.scoreboard = self.player.game_over
-            self.enemies.update()
+            self.enemiesClearMap.update()
 
             #if this event kills player and we move to scorescreen
             if self.player.game_over == True:
                 self.end_time = time.time()
                 self.score_menu.newscore(self.playerName,"clearmap", self.score, self.start_time, self.end_time)
         
+        elif not self.deathMatch_gameover:
+            self.player.update(self.up_blocks,self.down_blocks,self.left_blocks,self.right_blocks)
+            block_hit_list = pygame.sprite.groupcollide(self.enemiesDeathMatch,self.bullet_group,True, True, collided = None)
+            # When the block_hit_list contains one sprite that means that player hit a dot
+            if len(block_hit_list) > 0:
+                for enemy in block_hit_list:
+                    self.enemiesDeathMatch.add(Enemy(enemy.position[0], enemy.position[1], enemy.position[2], enemy.position[3], enemy.enemy_picture, enemy.walk, enemy.maptype, "deathmatch", self.blocks_array))
+                self.score += 1
+            block_hit_list = pygame.sprite.spritecollide(self.player,self.enemy_bullet_group,True)
+            if len(block_hit_list) > 0:
+                self.player.explosion = True
+                self.player = Player(32,194,self.playerCharacter, self.playerWalk, self.playerExplosion)
+                self.death += 1
+                self.game_over_sound.play()
+            self.deathMatch_gameover = self.player.game_over
+            self.scoreboard = self.player.game_over
+            self.enemiesDeathMatch.update()
+            #if this event kills player and we move to scorescreen
+            if self.player.game_over == True:
+                self.end_time = time.time()
+                self.score_menu.newscore(self.playerName,"deathmatch", self.score, self.start_time, self.end_time)
+          
 
     def display_frame(self,screen):
         # First, clear the screen to white. Don't put other drawing commands
         screen.fill(BLACK)
         # --- Drawing code should go here
-        if self.game_over:
+        if self.clearMap_gameover and self.deathMatch_gameover:
             if self.single_player:
+                print("this is single screen")
                 self.single_menu.display_frame(screen)
             elif self.multi_player:
                 self.multi_menu.display_frame(screen)
 
             elif self.mapSingle:
                 temp = self.mapSelect.display_frame(screen)
-                self.maptype = temp[0]
-                print(self.maptype)
+                print("game", temp)
+                if temp[0] != "path":
+                    self.maptype = "map"+ temp[0]
                 if temp[1] == "done":
-                    self.mapSingle = False
-                    self.single_player = True
-                
-            elif self.mapMulti:
-                self.mapMulti = False
-                self.multi_player = True
+                    self.mapSingle= False
+                    self.single_player= True
 
             elif self.character:
-                tt=pygame.font.Font(None,50)
-                t = tt.render("Select Character",True,GREEN)
-                screen.blit(t,[270,100])
-                count=self.count
-                left=self.left
-                right=self.right
-                up=self.up
-                down=self.down
-
-
+                temp = self.characterSelect.display_frame(screen)
+                self.playerCharacter = "graphic/character"+ temp[0] +".png" 
+                self.playerWalk = "graphic/character"+ temp[0] +"Walk.png" 
+                self.playerExplosion = "graphic/explosion"+ temp[0] +".png" 
+                if temp[1] == "done":
+                    self.character = False
+                    self.mainmenu = True
             
-                for i in range(0,18):
-                    if i<=5:
-                        pygame.draw.line(screen, BLUE , [130+i*100, 180], [220+i*100,180], 2) #startpos, endpos,width
-                        pygame.draw.line(screen, BLUE , [130+i*100, 280], [220+i*100,280], 2)
-
-                        pygame.draw.line(screen, BLUE , [130+i*100, 180], [130+i*100,280], 2)
-                        pygame.draw.line(screen, BLUE , [220+i*100, 180], [220+i*100,280], 2)
-
-
-                        pika=  "graphic/character"+ str(i) +".png"
-                        pikachu = pygame.image.load(pika).convert()
-                        pikachu.set_colorkey(BLACK)
-                        r = pikachu.get_rect()
-                        r.topleft = (150+i*100,200)
-                        screen.blit(pikachu,r)
-                        #Name
-                        tt=pygame.font.Font(None,20)
-                        t = tt.render(self.name[i],True,GREEN)
-                        screen.blit(t,[150+i*100,250])
-
-                        pika_exp=  "graphic/explosion0.png"
-                        pikachu_exp = pygame.image.load(pika_exp).convert()
-                        pc = pygame.transform.chop(pygame.transform.chop(pikachu_exp, (30,0,0,0)), (30,30,pikachu_exp.get_width(),pikachu_exp.get_height()))
-                        r = pc.get_rect()
-                        r.topleft = (185+i*100,200)
-                        screen.blit(pc,r)
-
-
-                    elif i>5 and i<12:
-                        pygame.draw.line(screen, BLUE , [130+(i-6)*100, 300], [220+(i-6)*100,300], 2) #startpos, endpos,width
-                        pygame.draw.line(screen, BLUE , [130+(i-6)*100, 400], [220+(i-6)*100,400], 2)
-
-                        pygame.draw.line(screen, BLUE , [130+(i-6)*100, 300], [130+(i-6)*100,400], 2)
-                        pygame.draw.line(screen, BLUE , [220+(i-6)*100, 300], [220+(i-6)*100,400], 2)
-
-                        Sonic=  "graphic/character"+ str(i) +".png"       
-                        S = pygame.image.load(Sonic).convert()
-                        S.set_colorkey(BLACK)
-                        r = S.get_rect()
-                        r.topleft = (150+(i-6)*100,320)
-                        screen.blit(S,r)
-
-                        tt=pygame.font.Font(None,20)
-                        t = tt.render(self.name[i],True,GREEN)
-                        screen.blit(t,[150+(i-6)*100,370])
-
-                        pc = pygame.transform.chop(pygame.transform.chop(pikachu_exp, (30,0,0,0)), (30,30,pikachu_exp.get_width(),pikachu_exp.get_height()))
-                        r = pc.get_rect()
-                        r.topleft = (180+(i-6)*100,320)
-                        screen.blit(pc,r)
-                    else:
-                        pygame.draw.line(screen, BLUE , [130+(i-12)*100, 420], [220+(i-12)*100,420], 2) #startpos, endpos,width
-                        pygame.draw.line(screen, BLUE , [130+(i-12)*100, 520], [220+(i-12)*100,520], 2)
-
-                        pygame.draw.line(screen, BLUE , [130+(i-12)*100, 420], [130+(i-12)*100,520], 2)
-                        pygame.draw.line(screen, BLUE , [220+(i-12)*100, 420], [220+(i-12)*100,520], 2)
-
-                        Sonic=  "graphic/character"+ str(i) +".png"      
-                        S = pygame.image.load(Sonic).convert()
-                        S.set_colorkey(BLACK)
-                        r = S.get_rect()
-                        r.topleft = (150+(i-12)*100,440)
-                        screen.blit(S,r)
-
-                        tt=pygame.font.Font(None,20)
-                        t = tt.render(self.name[i],True,GREEN)
-                        screen.blit(t,[150+(i-12)*100,490])
-
-                        pc = pygame.transform.chop(pygame.transform.chop(pikachu_exp, (30,0,0,0)), (30,30,pikachu_exp.get_width(),pikachu_exp.get_height()))
-                        r = pc.get_rect()
-                        r.topleft = (180+(i-12)*100,440)
-                        screen.blit(pc,r)
-
-                
-                
-                
-                #horizontal
-                pygame.draw.line(screen, YELLOW , [self.left, self.up], [self.right,self.up], 2) #startpos, endpos,width
-                pygame.draw.line(screen, YELLOW , [self.left, self.down], [self.right,self.down], 2)
-                #vertical
-                pygame.draw.line(screen, YELLOW , [self.left, self.up], [self.left,self.down], 2)
-                pygame.draw.line(screen, YELLOW , [self.right, self.up], [self.right,self.down], 2)
-
-                es=pygame.event.get()
-
-                for e in es:
-                    if e.type == pygame.KEYDOWN:
-                        if e.key == pygame.K_UP:
-                            print("Player moved up!")
-                            print(self.count)
-                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
-                            #vertical
-                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
-                            self.up=self.up-120
-                            self.down=self.down-120
-                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
-
-                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
-                            self.count-=6
-                            print(self.count)
-                            
-
-                        elif e.key == pygame.K_RIGHT:
-                            print("Player moved right!")
-                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
-                            #vertical
-                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
-
-                            self.left=self.left+100
-                            self.right=self.right+100
-
-                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
-
-                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
-
-                            self.count+=1
-                            print(self.count)
-
-
-                        elif e.key == pygame.K_DOWN:
-                            print("Player moved down!")
-                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
-                            #vertical
-                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
-                            print(up)
-                            self.up=self.up+120
-                            self.down=self.down+120
-
-                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
-
-                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
-                            self.count+=6
-                            print(self.count)
-
-
-                   
-
-                        elif e.key == pygame.K_LEFT:
-
-                            print("Player moved left!")
-                            pygame.draw.line(screen, BLUE , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, BLUE , [left, down], [right,down], 2)
-                            #vertical
-                            pygame.draw.line(screen, BLUE , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, BLUE , [right, up], [right,down], 2)
-                            self.left=self.left-100
-                            self.right=self.right-100
-                            print(left)
-                            pygame.draw.line(screen, YELLOW , [left, up], [right,up], 2) #startpos, endpos,width
-                            pygame.draw.line(screen, YELLOW , [left, down], [right,down], 2)
-
-                            pygame.draw.line(screen, YELLOW , [left, up], [left,down], 2)
-                            pygame.draw.line(screen, YELLOW , [right, up], [right,down], 2)
-
-                            self.count-=1
-                            print(self.count)
-
-                        elif e.key==pygame.K_RETURN:
-                            path="graphic/character"+ str(count) +".png" 
-                            self.playerCharacter="graphic/character"+ str(count) +".png"
-                            print(path)
-                            self.character=False
-                            self.mainmenu=True
-
-            
-
             elif self.scoreboard:
                 self.score_menu.display_frame(screen)
             else:
@@ -516,13 +390,25 @@ class Game(object):
             self.left_blocks.draw(screen)
             self.right_blocks.draw(screen)
             draw_enviroment(screen, self.maptype)
-            self.dots_group.draw(screen)
-            self.enemies.draw(screen)
+            if not self.clearMap_gameover:
+                self.dots_group.draw(screen)
+            if not self.clearMap_gameover:
+                self.enemiesClearMap.draw(screen)
+            if not self.deathMatch_gameover:
+                self.enemiesDeathMatch.draw(screen)
+                self.bullet_group.draw(screen)
+                self.bullet_group.update()
+                self.enemy_bullet_group.draw(screen)
+                self.enemy_bullet_group.update()
+
             screen.blit(self.player.image,self.player.rect)
             #text=self.font.render("Score: "+(str)(self.score), 1,self.RED)
             #screen.blit(text, (30, 650))
             # Render the text for the score
-            text = self.font.render("Flags: " + str(self.score),True,GREEN)
+            if not self.clearMap_gameover:
+                text = self.font.render("Flags: " + str(self.score),True,GREEN)
+            if not self.deathMatch_gameover:
+                text = self.font.render("Kills: " + str(self.score) + " Deaths: " + str(self.death), True, GREEN)
             # Put the text on the screen
             screen.blit(text,[120,20])
             

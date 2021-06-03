@@ -14,13 +14,19 @@ YELLOW =(255,255,0)
 class mapSelect(object):
     def __init__(self):
         #map
-        self.map_count=1
+        self.map_count=0
         self.map_up=140
         self.map_down=300
         self.map_right=380
         self.map_left=210
+        self.temp = ["path", "not done"]
 
     def display_frame(self, screen):
+        print("ss", self.temp)
+        if self.temp[1] == "done":       
+            print("its done")
+            return self.temp
+
         title=pygame.font.Font(None,50)
         title = title.render("Select Map",True, GREEN)
         screen.blit(title,[300,90])
@@ -67,12 +73,6 @@ class mapSelect(object):
                 screen.blit(t,[260+(i-2)*200,510])
 
 
-        map_up=self.map_up
-        map_down=self.map_down
-        map_right=self.map_right
-        map_left=self.map_left
-        map_count=self.map_count
-
         #horizontal
         pygame.draw.line(screen, YELLOW , [self.map_left, self.map_up], [self.map_right,self.map_up], 2) #startpos, endpos,width
         pygame.draw.line(screen, YELLOW , [self.map_left, self.map_down], [self.map_right,self.map_down], 2)
@@ -80,100 +80,92 @@ class mapSelect(object):
         pygame.draw.line(screen, YELLOW , [self.map_left, self.map_up], [self.map_left,self.map_down], 2)
         pygame.draw.line(screen, YELLOW , [self.map_right, self.map_up], [self.map_right,self.map_down], 2)
 
+        return self.temp
+        
+    def event_handler(self, event, screen):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
 
-        es=pygame.event.get()
-        for e in es:
-            if e.type == pygame.KEYDOWN:
-                if e.key == pygame.K_UP:
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
 
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
+                self.map_up=self.map_up-200
+                self.map_down=self.map_down-200
 
-                    self.map_up=self.map_up-200
-                    self.map_down=self.map_down-200
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
+                self.map_count-=2
+               
 
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
-                    self.map_count-=2
-                    print(self.map_count)
+            elif event.key == pygame.K_RIGHT:
+
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
+
+                self.map_left=self.map_left+200
+                self.map_right=self.map_right+200
+
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
+
+                self.map_count+=1
+
+            elif event.key == pygame.K_DOWN:
+
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
+                
+                self.map_up=self.map_up+200
+                self.map_down=self.map_down+200
+
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
+                self.map_count+=2
+
+            elif event.key == pygame.K_LEFT:
+
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
+
+                self.map_left=self.map_left-200
+                self.map_right=self.map_right-200
+                
+
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_right, self.map_up], 2) #startpos, endpos,width
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_down], [self.map_right, self.map_down], 2)
+                #vertical
+                pygame.draw.line(screen, BLUE , [self.map_left, self.map_up], [self.map_left, self.map_down], 2)
+                pygame.draw.line(screen, BLUE , [self.map_right, self.map_up], [self.map_right, self.map_down], 2)
+
+                self.map_count-=1
+
+
+            elif event.key==pygame.K_RETURN:
+                self.temp[0] = str(self.map_count)
+                self.temp[1] = "done"
+                print("its changed", self.temp)
+                return
                     
-
-                elif e.key == pygame.K_RIGHT:
-
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
-
-                    self.map_left=self.map_left+200
-                    self.map_right=self.map_right+200
-
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
-
-                    self.map_count+=1
-                    print(self.map_count)
-
-
-                elif e.key == pygame.K_DOWN:
-
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
-                    
-                    self.map_up=self.map_up+200
-                    self.map_down=self.map_down+200
-
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
-                    self.map_count+=2
-                    print(self.map_count) 
-
-                elif e.key == pygame.K_LEFT:
-
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
-
-                    self.map_left=self.map_left-200
-                    self.map_right=self.map_right-200
-                    
-
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_right,map_up], 2) #startpos, endpos,width
-                    pygame.draw.line(screen, BLUE , [map_left, map_down], [map_right,map_down], 2)
-                    #vertical
-                    pygame.draw.line(screen, BLUE , [map_left, map_up], [map_left,map_down], 2)
-                    pygame.draw.line(screen, BLUE , [map_right, map_up], [map_right,map_down], 2)
-
-                    self.map_count-=1
-
-
-                elif e.key==pygame.K_RETURN:
-                    temp = []
-                    path="map"+ str(map_count) 
-                    temp.append(path)
-                    temp.append("done")
-                    return temp
-                    
-        temp = []
-        temp.append("path")
-        temp.append("not done")
-        print(temp)
-        return temp
+        self.temp[0] = "path"
+        self.temp[1] = "not done"

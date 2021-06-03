@@ -20,7 +20,7 @@ def main():
     # -------- Main Program Loop -----------
     while not done:
         # --- Process events (keystrokes, mouse clicks, etc)
-        done = game.process_events()
+        done = game.process_events(screen)  #CHANGE
         # --- Game logic should go here
         game.run_logic()
         # --- Draw the current frame
