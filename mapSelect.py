@@ -22,9 +22,7 @@ class mapSelect(object):
         self.temp = ["path", "not done"]
 
     def display_frame(self, screen):
-        print("ss", self.temp)
-        if self.temp[1] == "done":       
-            print("its done")
+        if self.temp[1] == "done":
             return self.temp
 
         title=pygame.font.Font(None,50)
@@ -164,7 +162,6 @@ class mapSelect(object):
             elif event.key==pygame.K_RETURN:
                 self.temp[0] = str(self.map_count)
                 self.temp[1] = "done"
-                print("its changed", self.temp)
                 return
                     
         self.temp[0] = "path"

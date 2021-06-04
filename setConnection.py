@@ -15,7 +15,7 @@ class setConnection(object):
         return str.encode(str(clientID)+ "\t" + mes)
 
     #function for parsing message received by clients
-    def breakdown(self, mes):
+    def breakdownPlayerInfo(self, mes):
         spl = str.split(mes.decode("UTF-8"), sep="\t", maxsplit=2)
         if(len(spl) == 1):
             spl.append("")
@@ -46,11 +46,10 @@ class setConnection(object):
             print(" == " + mes + "\n")
 
     def __init__(self,playerName, port, url):
-        self.response = ""
-        name = playerName
-        serport = (url, port)
-        client = self.connection(name, serport)
-        print("1")
+        self.graphicset = {}
+        self.clientID = playerName
+        self.serport = (url, port)
+        self.connection() # clientID, socket
 
         #create Threads for sending and receiving messages
         #publish = threading.Thread(target=self.sendMes, args=[client, serport])
@@ -60,29 +59,39 @@ class setConnection(object):
         #publish.start()
         #subscribe.start()
 
-    def connection(self, name, serport):
-        clientID = name
-        UDPClientSocket = socket.socket(family= socket.AF_INET,type=socket.SOCK_DGRAM)
-        UDPClientSocket.sendto(self.createMes(clientID,"ADD"),serport)
-        response, addr=UDPClientSocket.recvfrom(BUFFER_SIZE)
+    def connection(self):
+        self.UDPClientSocket = socket.socket(family= socket.AF_INET,type=socket.SOCK_DGRAM)
+        self.UDPClientSocket.sendto(self.createMes(self.clientID,"ADD"),self.serport)
+        response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
 
         #notify if connection established or not
         if response.decode("UTF-8") == "OK":
             print("Connection has been established")
-            response, addr=UDPClientSocket.recvfrom(BUFFER_SIZE)
+            response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
+            self.playerNumber = int(response)
             print("You are player number ", response)
         else:
             print("Connection has been failed")
-            os._exit()
-
         
-        temp = {"clientID" : clientID, "socket" : UDPClientSocket}
-        return temp
+    def waitGame(self): #wait until another player is added
+        while True:
+            response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
+            if response.decode("UTF-8") == "GAME_START" :
+                print("OTHER PLAYERS JOINED!")
+                break
+            elif response.decode("UTF-8") == "WAIT_PLAYER" :
+                print("WAITING FOR OTHER PLAYERS")
 
-        
+    def sendGraphic(self, playerCharacter):  #sending character graphic to server
+        self.UDPClientSocket.sendto(self.createMes(self.clientID,playerCharacter),self.serport)
 
-       
+    def receiveGraphic(self):   #receive other player character graphics from server
+        response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
+        for x in range(0, int(response.decode("UTF-8"))):
+            response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
+            graphicset = self.breakdownPlayerInfo(response)
+            print("Player number: " + graphicset[0])
+            print("Player graphic: "+ graphicset[1]) 
+            self.graphicset[graphicset[0]] = graphicset[1]
 
     
-
-        

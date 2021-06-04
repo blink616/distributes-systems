@@ -33,10 +33,10 @@ pygame.time.set_timer(bullet_event, delay_time)
 
 
 class Game(object):
-    
-    #CHANGE
+
     playerID = 0
     maptype = 'map3'
+    graphicNumber = "6"
     playerName = "playername"
     playerCharacter = "graphic/character6.png"
     playerWalk = "graphic/character6Walk.png"
@@ -44,20 +44,26 @@ class Game(object):
     port = 11222
     serverurl = "127.0.0.1"
     
+    #coordinate list
+    characterCoordinateX = [32, 288, 288, 544, 32, 162, 450, 642, 450]
+    characterCoordinateY = [194, 67, 320, 64, 267, 64, 64, 448, 320]
+    characterDirection = ["right", "down", "up", "down", "down", "right", "left", "right", "right"]
+
+    #defining menus
+    mainmenu = True
+    deathMatch_gameover = True
+    clearMap_gameover = True
+    single_player = False
+    multi_player = False
+    character = False
+    scoreboard = False
+    mapSingle = False
+    mapMulti = False
+    multiCheck = False
+    
     def __init__(self):
         self.font = pygame.font.Font(None,40)
 
-        #defining menus
-        self.mainmenu = True
-        self.deathMatch_gameover = True
-        self.clearMap_gameover = True
-        self.single_player = False
-        self.multi_player = False
-        self.character = False
-        self.scoreboard = False
-        self.mapSingle = False
-        self.mapMulti = False
-  
         self.start_time = 0
         self.end_time = 0
 
@@ -85,7 +91,9 @@ class Game(object):
         
 
         # Create the player
-        self.player = Player(32,194,self.playerCharacter, self.playerWalk, self.playerExplosion)
+        if self.multiCheck == False:
+            self.player = Player(self.characterCoordinateX[0],self.characterCoordinateY[0],self.playerCharacter, self.playerWalk, self.playerExplosion)
+        
         # Create the blocks that will set the paths where the player can go
         self.up_blocks = pygame.sprite.Group()
         self.down_blocks = pygame.sprite.Group()
@@ -108,24 +116,28 @@ class Game(object):
                     self.right_blocks.add(Block(j*32+8,i*32+8,BLACK,16,16))
         # Create the enemies
         self.blocks_array = [self.up_blocks, self.down_blocks, self.left_blocks, self.right_blocks]
+
         self.enemiesClearMap = pygame.sprite.Group()
-        self.enemiesClearMap.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "clearmap", self.blocks_array))
-        self.enemiesClearMap.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "clearmap", self.blocks_array))
-        self.enemiesClearMap.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "clearmap", self.blocks_array))
-        self.enemiesClearMap.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype, "clearmap", self.blocks_array))
-        self.enemiesClearMap.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "clearmap", self.blocks_array))
-        self.enemiesClearMap.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "clearmap", self.blocks_array))
-        self.enemiesClearMap.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "clearmap", self.blocks_array))
-        self.enemiesClearMap.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype,"clearmap", self.blocks_array))
+        if self.multiCheck == False:
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[1],self.characterCoordinateY[1],0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "clearmap", self.blocks_array))
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[2],self.characterCoordinateY[2],0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "clearmap", self.blocks_array))
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[3],self.characterCoordinateY[3],0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "clearmap", self.blocks_array))
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[4],self.characterCoordinateY[4],0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype, "clearmap", self.blocks_array))
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[5],self.characterCoordinateY[5],2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "clearmap", self.blocks_array))
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[6],self.characterCoordinateY[6],-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "clearmap", self.blocks_array))
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[7],self.characterCoordinateY[7],2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "clearmap", self.blocks_array))
+            self.enemiesClearMap.add(Enemy(self.characterCoordinateX[8],self.characterCoordinateY[8],2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype,"clearmap", self.blocks_array))
+
         self.enemiesDeathMatch = pygame.sprite.Group()
-        self.enemiesDeathMatch.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "deathmatch", self.blocks_array))
-        self.enemiesDeathMatch.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "deathmatch", self.blocks_array))
-        self.enemiesDeathMatch.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "deathmatch", self.blocks_array))
-        self.enemiesDeathMatch.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype, "deathmatch", self.blocks_array))
-        self.enemiesDeathMatch.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "deathmatch", self.blocks_array))
-        self.enemiesDeathMatch.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "deathmatch", self.blocks_array))
-        self.enemiesDeathMatch.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "deathmatch", self.blocks_array))
-        self.enemiesDeathMatch.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype,"deathmatch", self.blocks_array))
+        if self.multiCheck == False:
+            self.enemiesDeathMatch.add(Enemy(288,67,0,2,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "deathmatch", self.blocks_array))
+            self.enemiesDeathMatch.add(Enemy(288,320,0,-2,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "deathmatch", self.blocks_array))
+            self.enemiesDeathMatch.add(Enemy(544,64,0,2,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "deathmatch", self.blocks_array))
+            self.enemiesDeathMatch.add(Enemy(32,267,0,2,"graphic/character4.png","graphic/character4Walk.png",self.maptype, "deathmatch", self.blocks_array))
+            self.enemiesDeathMatch.add(Enemy(162,64,2,0,"graphic/character1.png","graphic/character1Walk.png",self.maptype, "deathmatch", self.blocks_array))
+            self.enemiesDeathMatch.add(Enemy(450,64,-2,0,"graphic/character2.png","graphic/character2Walk.png",self.maptype, "deathmatch", self.blocks_array))
+            self.enemiesDeathMatch.add(Enemy(642,448,2,0,"graphic/character3.png","graphic/character3Walk.png",self.maptype, "deathmatch", self.blocks_array))
+            self.enemiesDeathMatch.add(Enemy(450,320,2,0,"graphic/character5.png","graphic/character5Walk.png",self.maptype,"deathmatch", self.blocks_array))
         
         # Add the dots inside the game
         for i, row in enumerate(enviroment(self.maptype)):
@@ -149,7 +161,6 @@ class Game(object):
                 self.characterSelect.event_handler(event,screen)
             elif (self.clearMap_gameover and self.deathMatch_gameover) and self.mapSingle:
                 self.mapSelect.event_handler(event,screen)
-                print("event is handled")
             elif (self.clearMap_gameover and self.deathMatch_gameover) and self.single_player:
                 self.single_menu.event_handler(event)
             elif (self.clearMap_gameover and self.deathMatch_gameover) and self.multi_player:
@@ -172,8 +183,6 @@ class Game(object):
                         elif self.menu.state == 1:
                             # ---- START MULTI PLAYER------
                             self.__init__()
-                            self.playerID = input("Enter ID:")
-                            self.setConnection = setConnection(self.playerID, self.port, self.serverurl)
                             self.multi_player = True
                             self.mainmenu = False
                         elif self.menu.state == 2:
@@ -240,8 +249,10 @@ class Game(object):
                             self.multi_player = False
                         elif self.multi_menu.state == 1:
                             # --- START CLEAR MAP ------
+                            self.multiCheck = True
                             self.__init__()
-                            self.mainmenu = True
+                            self.multiplayerHandler()                         
+                            self.clearMap_gameover = False
                             self.multi_player = False
                         elif self.multi_menu.state == 2:
                             # --- SELECT MAP ---
@@ -320,7 +331,8 @@ class Game(object):
                 self.game_over_sound.play()
             self.clearMap_gameover = self.player.game_over
             self.scoreboard = self.player.game_over
-            self.enemiesClearMap.update()
+            if self.multiCheck == False:
+                self.enemiesClearMap.update()
 
             #if this event kills player and we move to scorescreen
             if self.player.game_over == True:
@@ -356,14 +368,12 @@ class Game(object):
         # --- Drawing code should go here
         if self.clearMap_gameover and self.deathMatch_gameover:
             if self.single_player:
-                print("this is single screen")
                 self.single_menu.display_frame(screen)
             elif self.multi_player:
                 self.multi_menu.display_frame(screen)
 
             elif self.mapSingle:
                 temp = self.mapSelect.display_frame(screen)
-                print("game", temp)
                 if temp[0] != "path":
                     self.maptype = "map"+ temp[0]
                 if temp[1] == "done":
@@ -372,6 +382,7 @@ class Game(object):
 
             elif self.character:
                 temp = self.characterSelect.display_frame(screen)
+                self.graphicNumber = temp[0]
                 self.playerCharacter = "graphic/character"+ temp[0] +".png" 
                 self.playerWalk = "graphic/character"+ temp[0] +"Walk.png" 
                 self.playerExplosion = "graphic/explosion"+ temp[0] +".png" 
@@ -425,3 +436,21 @@ class Game(object):
         posY = (SCREEN_HEIGHT /2) - (height /2)
         # Draw the label onto the screen
         screen.blit(label,(posX,posY))
+
+    def multiplayerHandler(self):
+        self.playerID = input("Enter ID:")
+        self.setConnection = setConnection(self.playerID, self.port, self.serverurl)
+        self.setConnection.waitGame()     #waiting for other player to join
+        self.setConnection.sendGraphic(self.graphicNumber)
+        self.setConnection.receiveGraphic()
+
+        #define new player graphics
+        self.player = Player(self.characterCoordinateX[self.setConnection.playerNumber-1],self.characterCoordinateY[self.setConnection.playerNumber-1],self.playerCharacter, self.playerWalk, self.playerExplosion)
+        
+        #define new enemy graphics
+        for playerNumber, graphic in self.setConnection.graphicset.items():
+            if int(playerNumber) != (self.setConnection.playerNumber):
+                a = "graphic/character" + graphic + ".png"
+                b = "graphic/character" + graphic + "Walk.png"
+                c = "graphic/explosion" + graphic + ".png"
+                self.enemiesClearMap.add(Player(self.characterCoordinateX[int(playerNumber)-1],self.characterCoordinateY[int(playerNumber)-1],a, b, c))
