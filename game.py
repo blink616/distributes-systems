@@ -172,7 +172,6 @@ class Game(object):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-
                     #on main menu
                     if (self.clearMap_gameover and self.deathMatch_gameover) and self.mainmenu:
                         if self.menu.state == 0:
@@ -254,6 +253,7 @@ class Game(object):
                             self.multiplayerHandler()                         
                             self.clearMap_gameover = False
                             self.multi_player = False
+                            self.setConnection.sendPlayerMovement("none")
                         elif self.multi_menu.state == 2:
                             # --- SELECT MAP ---
                             self.__init__()
@@ -266,18 +266,26 @@ class Game(object):
                             self.mainmenu = True
                             self.multi_player = False
                             
-
                 elif event.key == pygame.K_RIGHT:
                     self.player.move_right()
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("moveright")
 
                 elif event.key == pygame.K_LEFT:
                     self.player.move_left()
-
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("moveleft")
+                    
                 elif event.key == pygame.K_UP:
                     self.player.move_up()
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("moveup")
 
                 elif event.key == pygame.K_DOWN:
                     self.player.move_down()
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("movedown")
+
                 elif event.key == pygame.K_RCTRL:
                     self.bullet_group.add(self.player.create_bullet())
                 
@@ -294,12 +302,22 @@ class Game(object):
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_RIGHT:
                     self.player.stop_move_right()
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("stopright")
                 elif event.key == pygame.K_LEFT:
                     self.player.stop_move_left()
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("stopleft")
+
                 elif event.key == pygame.K_UP:
                     self.player.stop_move_up()
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("stopup")
+
                 elif event.key == pygame.K_DOWN:
                     self.player.stop_move_down()
+                    if self.multiCheck == True:
+                        self.setConnection.sendPlayerMovement("stopdown")
 
             elif event.type == bullet_event:
                      for enemy in self.enemiesDeathMatch:
@@ -313,7 +331,12 @@ class Game(object):
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.player.explosion = True
-                    
+
+            else:
+                if self.multiCheck == True:
+                    print("cc")
+                    self.setConnection.sendPlayerMovement("none")
+
         return False
 
     def run_logic(self):
@@ -333,6 +356,10 @@ class Game(object):
             self.scoreboard = self.player.game_over
             if self.multiCheck == False:
                 self.enemiesClearMap.update()
+            else:
+                print("aaa")
+                self.setConnection.adjustOthersMovement(self.enemiesClearMap)
+                #self.setConnection.adjustEnemies(self.enemiesClearMap)
 
             #if this event kills player and we move to scorescreen
             if self.player.game_over == True:
@@ -363,6 +390,7 @@ class Game(object):
           
 
     def display_frame(self,screen):
+        print("sdg")
         # First, clear the screen to white. Don't put other drawing commands
         screen.fill(BLACK)
         # --- Drawing code should go here

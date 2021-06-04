@@ -47,6 +47,7 @@ class setConnection(object):
 
     def __init__(self,playerName, port, url):
         self.graphicset = {}
+        self.movementset = {}
         self.clientID = playerName
         self.serport = (url, port)
         self.connection() # clientID, socket
@@ -63,7 +64,7 @@ class setConnection(object):
         self.UDPClientSocket = socket.socket(family= socket.AF_INET,type=socket.SOCK_DGRAM)
         self.UDPClientSocket.sendto(self.createMes(self.clientID,"ADD"),self.serport)
         response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
-
+        self.UDPClientSocket.setblocking(1)
         #notify if connection established or not
         if response.decode("UTF-8") == "OK":
             print("Connection has been established")
@@ -87,6 +88,7 @@ class setConnection(object):
 
     def receiveGraphic(self):   #receive other player character graphics from server
         response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
+        self.enemyNumber = int(response.decode("UTF-8"))-1
         for x in range(0, int(response.decode("UTF-8"))):
             response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
             graphicset = self.breakdownPlayerInfo(response)
@@ -94,4 +96,19 @@ class setConnection(object):
             print("Player graphic: "+ graphicset[1]) 
             self.graphicset[graphicset[0]] = graphicset[1]
 
-    
+    def sendPlayerMovement(self, mes):
+        self.UDPClientSocket.sendto(self.createMes(self.clientID, mes),self.serport)
+
+    def adjustOthersMovement(self,enemyGroup):
+        for x in range(0, self.enemyNumber):
+            response, addr = self.UDPClientSocket.recvfrom(BUFFER_SIZE)
+            movementset = self.breakdownPlayerInfo(response)
+            print("Player number: " + movementset[0])
+            print("Player movement: "+ movementset[1]) 
+            
+            #if movementset[1] == "moveup":
+
+            self.movementset[movementset[0]] = movementset[1]
+        
+    #def adjustEnemies(self, enemiesClearMap):
+

@@ -54,7 +54,7 @@ if __name__ == "__main__":
 		elif(playerID in currentPlayer.keys() and mes == "LEAVE"):
 			currentPlayer.pop(playerID)
 
-		if len(currentPlayer) == 3:
+		if len(currentPlayer) == 2:
 			gameStart = True
 			for tempid, tempaddr in currentPlayer.items():
 				UDPServerSocket.sendto(str.encode("GAME_START"),tempaddr)
@@ -77,9 +77,27 @@ if __name__ == "__main__":
 		UDPServerSocket.sendto(str.encode(str(len(currentPlayer))),tempaddr) #send number of players
 		for playerID, graphic in currentGraphic.items():	
 			UDPServerSocket.sendto(createPlayerInfo(currentPlayerNumber[playerID], graphic),tempaddr)
-    			
-	#broadcast message 
-	#if(playerID in currentPlayer.keys() and mes != ""):
+
+	#get player movements in one time frame
+
+	
+	while True:
+		playerMovement = {}
+		
+		for x in range(0,len(currentPlayer)):
+			mes,addr = UDPServerSocket.recvfrom(BUFFER_SIZE)		#receiving messages
+			playerID,movement = breakdown(mes)		#parsing message received
+			playerMovement[playerID] = movement
+
+		#broadcast movements
+		for tempid, tempaddr in currentPlayer.items():
+			for playerID, movement in playerMovement.items():
+				if playerID != tempid:	
+					UDPServerSocket.sendto(createPlayerInfo(currentPlayerNumber[playerID], movement),tempaddr)
+
+		
+		#broadcast message 
+		#if(playerID in currentPlayer.keys() and mes != ""):
 		#for tempid, tempaddr in currentPlayer.items():
 			#if (tempid != id):
 				#UDPServerSocket.sendto(createMes(playerID, mes),tempaddr)
