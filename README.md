@@ -1,3 +1,3 @@
 # distributes-systems
-Multiplayer Pacman game.
+Multiplayer SHOOTING game.
 Client and Server.
